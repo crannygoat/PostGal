@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POST GAL — Bay Area Artists & Hosts</title>
+<style>
+/* ─── RESET & BASE ─── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #f5f0ea;
+  --fg: #1a1a1a;
+  --accent: #e8430a;
+  --muted: #8a8278;
+  --border: #d4cfc7;
+  --card-bg: #fffdf9;
+  --tag-bg: #ede8e0;
+  --radius: 3px;
+  --font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --font-display: Georgia, 'Times New Roman', serif;
+}
+
+html { font-size: 15px; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+
+a { color: var(--fg); text-decoration: none; }
+a:hover { color: var(--accent); }
+button { cursor: pointer; font-family: inherit; }
+input, textarea, select {
+  font-family: inherit;
+  font-size: 0.93rem;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  color: var(--fg);
+  width: 100%;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--fg);
+}
+textarea { resize: vertical; min-height: 80px; }
+
+/* ─── LAYOUT ─── */
+.site-header {
+  border-bottom: 2px solid var(--fg);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-transform: uppercase;
+}
+.logo span { color: var(--accent); }
+
+.nav-links { display: flex; gap: 20px; align-items: center; }
+.nav-links a, .nav-links button {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  color: var(--fg);
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+.nav-links a:hover, .nav-links button:hover,
+.nav-links a.active, .nav-links button.active {
+  border-bottom-color: var(--accent);
+  color: var(--accent);
+}
+
+.main-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+}
+
+/* ─── VIEWS ─── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ─── CALENDAR ─── */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.calendar-header h2 {
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  font-weight: 400;
+}
+.calendar-nav { display: flex; gap: 8px; }
+.calendar-nav button {
+  background: none;
+  border: 1px solid var(--border);
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: var(--radius);
+}
+.calendar-nav button:hover { border-color: var(--fg); }
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+}
+.calendar-day-header {
+  padding: 8px 6px;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+  color: var(--muted);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  text-align: center;
+}
+.calendar-day {
+  min-height: 100px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 4px 6px;
+  position: relative;
+  background: var(--card-bg);
+  transition: background 0.15s;
+}
+.calendar-day:hover { background: #f9f5ee; }
+.calendar-day.other-month { background: var(--bg); opacity: 0.4; }
+.calendar-day.today { background: #fef3ec; }
+.calendar-day .day-number {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.calendar-day.today .day-number { color: var(--accent); font-weight: 700; }
+
+.cal-event {
+  display: block;
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  margin-bottom: 2px;
+  border-radius: 2px;
+  background: var(--fg);
+  color: var(--card-bg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  line-height: 1.5;
+  transition: background 0.15s;
+}
+.cal-event:hover { background: var(--accent); color: white; }
+.cal-event.type-house_show { background: #1a1a1a; }
+.cal-event.type-workshop { background: #2d6a4f; }
+.cal-event.type-jam_session { background: #7b2d8b; }
+.cal-event.type-gallery { background: #b44d12; }
+.cal-event.type-meetup { background: #1d4e89; }
+.cal-event.type-skill_swap { background: #8b6914; }
+.cal-event.type-other { background: #555; }
+
+.cal-more {
+  font-size: 0.68rem;
+  color: var(--accent);
+  cursor: pointer;
+  padding: 2px 4px;
+}
+
+/* ─── UPCOMING LIST (below calendar) ─── */
+.section-title {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 400;
+  margin: 30px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.event-list { display: flex; flex-direction: column; gap: 12px; }
+
+.event-card {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 16px;
+  padding: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.event-card:hover { border-color: var(--fg); }
+
+.event-date-block {
+  text-align: center;
+  padding: 8px 0;
+}
+.event-date-block .month {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  font-weight: 700;
+}
+.event-date-block .day {
+  font-size: 1.8rem;
+  font-weight: 300;
+  line-height: 1.1;
+  font-family: var(--font-display);
+}
+.event-date-block .weekday {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.event-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.event-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.event-desc {
+  font-size: 0.85rem;
+  color: #444;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.event-type-badge {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  background: var(--tag-bg);
+  color: var(--muted);
+  font-weight: 600;
+  align-self: start;
+  white-space: nowrap;
+}
+
+/* ─── FILTERS BAR ─── */
+.filters-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.filters-bar select, .filters-bar input {
+  width: auto;
+  min-width: 140px;
+  font-size: 0.8rem;
+  padding: 6px 10px;
+}
+.filters-bar input[type="search"] {
+  min-width: 200px;
+}
+
+/* ─── PROFILES / PEOPLE ─── */
+.people-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.profile-card {
+  padding: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.profile-card:hover { border-color: var(--fg); }
+
+.profile-card .name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.profile-card .role-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.role-badge.artist { background: #1a1a1a; color: white; }
+.role-badge.host { background: var(--accent); color: white; }
+.role-badge.both { background: #2d6a4f; color: white; }
+
+.profile-card .hood {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.profile-card .bio {
+  font-size: 0.85rem;
+  color: #444;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tag-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.tag {
+  font-size: 0.68rem;
+  padding: 2px 6px;
+  background: var(--tag-bg);
+  border-radius: 2px;
+  color: var(--muted);
+}
+
+/* ─── DETAIL MODAL ─── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+  overflow-y: auto;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--card-bg);
+  border: 2px solid var(--fg);
+  border-radius: var(--radius);
+  max-width: 600px;
+  width: 100%;
+  padding: 32px;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--muted);
+  line-height: 1;
+}
+.modal-close:hover { color: var(--fg); }
+
+.modal h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+.modal .meta-line {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.modal .description {
+  margin-top: 16px;
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+.modal .tag-list { margin-top: 16px; }
+
+.btn {
+  display: inline-block;
+  padding: 8px 20px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  border: 2px solid var(--fg);
+  background: none;
+  color: var(--fg);
+  border-radius: var(--radius);
+  transition: all 0.15s;
+  margin-top: 16px;
+}
+.btn:hover { background: var(--fg); color: var(--card-bg); }
+.btn-accent { border-color: var(--accent); color: var(--accent); }
+.btn-accent:hover { background: var(--accent); color: white; }
+
+/* ─── COMMUNITY BOARD ─── */
+.post-list { display: flex; flex-direction: column; gap: 12px; }
+.post-card {
+  padding: 16px 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.post-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+.post-card .post-meta {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.post-card .post-body {
+  font-size: 0.88rem;
+  color: #444;
+}
+.post-type-badge {
+  display: inline-block;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  background: var(--tag-bg);
+  color: var(--muted);
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+/* ─── AUTH FORMS ─── */
+.auth-form {
+  max-width: 360px;
+  margin: 40px auto;
+}
+.auth-form h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.auth-form .btn { width: 100%; text-align: center; }
+.auth-toggle {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.auth-toggle a { color: var(--accent); text-decoration: underline; }
+
+.error-msg {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  display: none;
+}
+
+/* ─── CREATE EVENT FORM ─── */
+.create-form {
+  max-width: 520px;
+  margin: 20px auto;
+}
+.create-form h2 {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-bottom: 20px;
+}
+
+/* ─── SUBHEADER / TAGLINE ─── */
+.tagline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.88rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+}
+
+/* ─── FOOTER ─── */
+.site-footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.75rem;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 700px) {
+  .site-header { flex-direction: column; gap: 10px; }
+  .calendar-grid { font-size: 0.85rem; }
+  .calendar-day { min-height: 70px; }
+  .event-card { grid-template-columns: 60px 1fr; }
+  .event-type-badge { display: none; }
+  .people-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── HEADER ─── -->
+<header class="site-header">
+  <a href="#" class="logo" onclick="navigate('calendar')">Post <span>Gal</span></a>
+  <nav class="nav-links">
+    <a href="#" data-nav="calendar" class="active" onclick="navigate('calendar')">Calendar</a>
+    <a href="#" data-nav="people" onclick="navigate('people')">People</a>
+    <a href="#" data-nav="board" onclick="navigate('board')">Board</a>
+    <span id="auth-nav"></span>
+  </nav>
+</header>
+
+<div class="tagline">connecting artists &amp; hosts across the bay — house shows, studios, skill swaps &amp; more</div>
+
+<!-- ─── MAIN ─── -->
+<main class="main-content">
+
+  <!-- CALENDAR VIEW -->
+  <div id="view-calendar" class="view active">
+    <div class="calendar-header">
+      <h2 id="calendar-month-label"></h2>
+      <div class="calendar-nav">
+        <button onclick="calPrev()">&larr; Prev</button>
+        <button onclick="calToday()">Today</button>
+        <button onclick="calNext()">Next &rarr;</button>
+      </div>
+    </div>
+    <div class="filters-bar">
+      <select id="cal-filter-type" onchange="renderCalendar()">
+        <option value="">All types</option>
+        <option value="house_show">House Shows</option>
+        <option value="open_studio">Open Studios</option>
+        <option value="gallery">Gallery</option>
+        <option value="jam_session">Jam Sessions</option>
+        <option value="workshop">Workshops</option>
+        <option value="skill_swap">Skill Swaps</option>
+        <option value="meetup">Meetups</option>
+        <option value="residency">Residencies</option>
+        <option value="other">Other</option>
+      </select>
+      <select id="cal-filter-hood" onchange="renderCalendar()">
+        <option value="">All neighborhoods</option>
+      </select>
+    </div>
+    <div id="calendar-grid" class="calendar-grid"></div>
+
+    <h3 class="section-title" id="upcoming-title">Upcoming</h3>
+    <div id="upcoming-list" class="event-list"></div>
+  </div>
+
+  <!-- PEOPLE VIEW -->
+  <div id="view-people" class="view">
+    <h2 class="section-title" style="margin-top:0">People</h2>
+    <div class="filters-bar">
+      <select id="people-filter-role" onchange="loadPeople()">
+        <option value="">Everyone</option>
+        <option value="artist">Artists</option>
+        <option value="host">Hosts</option>
+      </select>
+      <select id="people-filter-hood" onchange="loadPeople()">
+        <option value="">All neighborhoods</option>
+      </select>
+      <input type="search" id="people-search" placeholder="Search people..." oninput="debounce(loadPeople, 300)()">
+    </div>
+    <div id="people-grid" class="people-grid"></div>
+  </div>
+
+  <!-- BOARD VIEW -->
+  <div id="view-board" class="view">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 class="section-title" style="margin-top:0;border:none;padding:0">Community Board</h2>
+      <button class="btn btn-accent" onclick="showCreatePost()" style="margin:0;font-size:0.72rem;">+ Post</button>
+    </div>
+    <div class="filters-bar" style="margin-top:12px;">
+      <select id="board-filter-type" onchange="loadPosts()">
+        <option value="">All posts</option>
+        <option value="looking_for_venue">Looking for venue</option>
+        <option value="looking_for_artist">Looking for artist</option>
+        <option value="collab">Collaboration</option>
+        <option value="skill_swap">Skill swap</option>
+        <option value="gear">Gear</option>
+        <option value="general">General</option>
+      </select>
+      <input type="search" id="board-search" placeholder="Search board..." oninput="debounce(loadPosts, 300)()">
+    </div>
+    <div id="posts-list" class="post-list"></div>
+  </div>
+
+  <!-- LOGIN VIEW -->
+  <div id="view-login" class="view">
+    <div class="auth-form">
+      <h2>Sign In</h2>
+      <div id="login-error" class="error-msg"></div>
+      <div class="form-group">
+        <label>Username or email</label>
+        <input type="text" id="login-username">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password">
+      </div>
+      <button class="btn" onclick="doLogin()">Sign In</button>
+      <div class="auth-toggle">
+        New here? <a href="#" onclick="navigate('signup')">Create an account</a>
+      </div>
+      <div style="margin-top:20px;padding:12px;background:var(--tag-bg);border-radius:var(--radius);font-size:0.82rem;color:var(--muted);">
+        <strong>Demo accounts:</strong> Any username from the People page with password <code>demo1234</code>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGNUP VIEW -->
+  <div id="view-signup" class="view">
+    <div class="auth-form">
+      <h2>Join Post Gal</h2>
+      <div id="signup-error" class="error-msg"></div>
+      <div class="form-group">
+        <label>Display name</label>
+        <input type="text" id="signup-name" placeholder="How you want to be known">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="signup-username" placeholder="your_handle">
+        </div>
+        <div class="form-group">
+          <label>I am a...</label>
+          <select id="signup-role">
+            <option value="artist">Artist</option>
+            <option value="host">Host</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="signup-email">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="signup-password">
+      </div>
+      <button class="btn" onclick="doSignup()">Create Account</button>
+      <div class="auth-toggle">
+        Already have an account? <a href="#" onclick="navigate('login')">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE EVENT VIEW -->
+  <div id="view-create-event" class="view">
+    <div class="create-form">
+      <h2>Post an Event</h2>
+      <div id="event-error" class="error-msg"></div>
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="event-title" placeholder="What's happening?">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type</label>
+          <select id="event-type">
+            <option value="house_show">House Show</option>
+            <option value="open_studio">Open Studio</option>
+            <option value="gallery">Gallery</option>
+            <option value="jam_session">Jam Session</option>
+            <option value="workshop">Workshop</option>
+            <option value="skill_swap">Skill Swap</option>
+            <option value="meetup">Meetup</option>
+            <option value="residency">Residency</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="event-date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Start time</label>
+          <input type="text" id="event-start" placeholder="7:00 PM">
+        </div>
+        <div class="form-group">
+          <label>End time</label>
+          <input type="text" id="event-end" placeholder="10:00 PM">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Location name</label>
+        <input type="text" id="event-location" placeholder="My backyard, the garage, etc.">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Neighborhood</label>
+          <input type="text" id="event-hood" placeholder="Mission, Temescal, etc.">
+        </div>
+        <div class="form-group">
+          <label>Capacity</label>
+          <input type="number" id="event-capacity" placeholder="0 = unlimited">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="event-desc" placeholder="What should people know?"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Tags (comma-separated)</label>
+        <input type="text" id="event-tags" placeholder="live music, potluck, BYOB">
+      </div>
+      <button class="btn btn-accent" onclick="doCreateEvent()">Post Event</button>
+    </div>
+  </div>
+
+  <!-- CREATE POST VIEW (board) -->
+  <div id="view-create-post" class="view">
+    <div class="create-form">
+      <h2>Post to the Board</h2>
+      <div id="post-error" class="error-msg"></div>
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" id="post-title" placeholder="What's on your mind?">
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <select id="post-type">
+          <option value="looking_for_venue">Looking for venue</option>
+          <option value="looking_for_artist">Looking for artist</option>
+          <option value="collab">Collaboration</option>
+          <option value="skill_swap">Skill swap</option>
+          <option value="gear">Gear</option>
+          <option value="general">General</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Details</label>
+        <textarea id="post-body" placeholder="Tell people more..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Tags (comma-separated)</label>
+        <input type="text" id="post-tags" placeholder="poetry, Mission, venue">
+      </div>
+      <button class="btn btn-accent" onclick="doCreatePost()">Post It</button>
+    </div>
+  </div>
+
+  <!-- PROFILE VIEW -->
+  <div id="view-profile" class="view">
+    <div id="profile-content"></div>
+  </div>
+
+</main>
+
+<!-- MODAL -->
+<div id="modal-overlay" class="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<footer class="site-footer">
+  Post Gal &mdash; Bay Area artists &amp; hosts &mdash; built for the community
+</footer>
+
+<script>
+// ─── STATE ───
+let currentView = 'calendar';
+let calYear, calMonth;
+let allEvents = [];
+let currentUser = null; // { token, user_id, username, display_name, role }
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const EVENT_TYPE_LABELS = {
+  house_show: 'House Show', open_studio: 'Open Studio', gallery: 'Gallery',
+  jam_session: 'Jam Session', workshop: 'Workshop', skill_swap: 'Skill Swap',
+  meetup: 'Meetup', residency: 'Residency', other: 'Other'
+};
+const POST_TYPE_LABELS = {
+  looking_for_venue: 'Looking for Venue', looking_for_artist: 'Looking for Artist',
+  collab: 'Collaboration', skill_swap: 'Skill Swap', gear: 'Gear', general: 'General'
+};
+
+// ─── INIT ───
+(function init() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+
+  // Restore session
+  const saved = localStorage.getItem('postgal_user');
+  if (saved) {
+    try { currentUser = JSON.parse(saved); } catch(e) {}
+  }
+  updateAuthNav();
+  loadNeighborhoods();
+  loadEvents();
+})();
+
+// ─── NAVIGATION ───
+function navigate(view) {
+  currentView = view;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  const el = document.getElementById('view-' + view);
+  if (el) el.classList.add('active');
+
+  document.querySelectorAll('.nav-links a[data-nav]').forEach(a => {
+    a.classList.toggle('active', a.dataset.nav === view);
+  });
+
+  if (view === 'calendar') loadEvents();
+  if (view === 'people') loadPeople();
+  if (view === 'board') loadPosts();
+}
+
+// ─── API HELPERS ───
+async function api(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (currentUser) headers['Authorization'] = 'Bearer ' + currentUser.token;
+  const res = await fetch(path, { ...opts, headers: { ...headers, ...(opts.headers || {}) } });
+  return res.json();
+}
+
+// ─── AUTH ───
+function updateAuthNav() {
+  const nav = document.getElementById('auth-nav');
+  if (currentUser) {
+    nav.innerHTML = `
+      <button onclick="navigate('create-event')" style="color:var(--accent)">+ Event</button>
+      <span style="font-size:0.78rem;color:var(--muted)">${currentUser.display_name || currentUser.username}</span>
+      <button onclick="doLogout()">Log Out</button>
+    `;
+  } else {
+    nav.innerHTML = `<a href="#" onclick="navigate('login')">Sign In</a>`;
+  }
+}
+
+async function doLogin() {
+  const username = document.getElementById('login-username').value;
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.style.display = 'none';
+
+  const data = await api('/api/login', { method: 'POST', body: JSON.stringify({ username, password }) });
+  if (data.error) {
+    errEl.textContent = data.error;
+    errEl.style.display = 'block';
+  } else {
+    currentUser = data;
+    localStorage.setItem('postgal_user', JSON.stringify(data));
+    updateAuthNav();
+    navigate('calendar');
+  }
+}
+
+async function doSignup() {
+  const errEl = document.getElementById('signup-error');
+  errEl.style.display = 'none';
+  const payload = {
+    display_name: document.getElementById('signup-name').value,
+    username: document.getElementById('signup-username').value,
+    email: document.getElementById('signup-email').value,
+    password: document.getElementById('signup-password').value,
+    role: document.getElementById('signup-role').value,
+  };
+  const data = await api('/api/signup', { method: 'POST', body: JSON.stringify(payload) });
+  if (data.error) {
+    errEl.textContent = data.error;
+    errEl.style.display = 'block';
+  } else {
+    currentUser = data;
+    localStorage.setItem('postgal_user', JSON.stringify(data));
+    updateAuthNav();
+    navigate('calendar');
+  }
+}
+
+function doLogout() {
+  currentUser = null;
+  localStorage.removeItem('postgal_user');
+  updateAuthNav();
+  navigate('calendar');
+}
+
+// ─── NEIGHBORHOODS ───
+async function loadNeighborhoods() {
+  const hoods = await api('/api/neighborhoods');
+  ['cal-filter-hood', 'people-filter-hood'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    // Keep first option
+    while (sel.options.length > 1) sel.remove(1);
+    hoods.forEach(h => {
+      const opt = document.createElement('option');
+      opt.value = h; opt.textContent = h;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+// ─── EVENTS & CALENDAR ───
+async function loadEvents() {
+  const monthStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}`;
+  allEvents = await api(`/api/events?month=${monthStr}`);
+  renderCalendar();
+  renderUpcoming();
+}
+
+function renderCalendar() {
+  const grid = document.getElementById('calendar-grid');
+  const label = document.getElementById('calendar-month-label');
+  label.textContent = `${MONTHS[calMonth]} ${calYear}`;
+
+  const filterType = document.getElementById('cal-filter-type').value;
+  const filterHood = document.getElementById('cal-filter-hood').value;
+
+  let events = allEvents;
+  if (filterType) events = events.filter(e => e.event_type === filterType);
+  if (filterHood) events = events.filter(e => e.neighborhood === filterHood);
+
+  // Build event map by date
+  const eventMap = {};
+  events.forEach(e => {
+    if (!eventMap[e.date]) eventMap[e.date] = [];
+    eventMap[e.date].push(e);
+  });
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+  let html = '';
+  DAYS.forEach(d => { html += `<div class="calendar-day-header">${d}</div>`; });
+
+  // Previous month days
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const d = daysInPrev - i;
+    html += `<div class="calendar-day other-month"><span class="day-number">${d}</span></div>`;
+  }
+
+  // Current month days
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr === todayStr;
+    const dayEvents = eventMap[dateStr] || [];
+
+    html += `<div class="calendar-day${isToday ? ' today' : ''}">`;
+    html += `<span class="day-number">${d}</span>`;
+
+    const show = dayEvents.slice(0, 3);
+    show.forEach(e => {
+      html += `<div class="cal-event type-${e.event_type}" onclick="showEventModal(${e.id})" title="${esc(e.title)}">${esc(e.title)}</div>`;
+    });
+    if (dayEvents.length > 3) {
+      html += `<div class="cal-more">+${dayEvents.length - 3} more</div>`;
+    }
+    html += '</div>';
+  }
+
+  // Next month fill
+  const totalCells = firstDay + daysInMonth;
+  const remaining = (7 - (totalCells % 7)) % 7;
+  for (let d = 1; d <= remaining; d++) {
+    html += `<div class="calendar-day other-month"><span class="day-number">${d}</span></div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+function renderUpcoming() {
+  const list = document.getElementById('upcoming-list');
+  const title = document.getElementById('upcoming-title');
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = allEvents.filter(e => e.date >= today).slice(0, 8);
+
+  title.textContent = `Upcoming in ${MONTHS[calMonth]}`;
+
+  if (upcoming.length === 0) {
+    list.innerHTML = '<p style="color:var(--muted);font-size:0.9rem;">No upcoming events this month. <a href="#" onclick="navigate(\'create-event\')" style="color:var(--accent)">Post one?</a></p>';
+    return;
+  }
+
+  list.innerHTML = upcoming.map(e => {
+    const d = new Date(e.date + 'T12:00:00');
+    const month = MONTHS[d.getMonth()].slice(0, 3).toUpperCase();
+    const day = d.getDate();
+    const weekday = DAYS[d.getDay()];
+    return `
+      <div class="event-card" onclick="showEventModal(${e.id})">
+        <div class="event-date-block">
+          <div class="month">${month}</div>
+          <div class="day">${day}</div>
+          <div class="weekday">${weekday}</div>
+        </div>
+        <div class="event-info">
+          <h3>${esc(e.title)}</h3>
+          <div class="event-meta">${e.time_start}${e.time_end ? ' – ' + e.time_end : ''} · ${esc(e.location_name || e.neighborhood)}</div>
+          <div class="event-desc">${esc(e.description)}</div>
+        </div>
+        <div class="event-type-badge">${EVENT_TYPE_LABELS[e.event_type] || e.event_type}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function calPrev() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } loadEvents(); }
+function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } loadEvents(); }
+function calToday() { const n = new Date(); calYear = n.getFullYear(); calMonth = n.getMonth(); loadEvents(); }
+
+// ─── EVENT MODAL ───
+async function showEventModal(id) {
+  const e = await api(`/api/events/${id}`);
+  if (e.error) return;
+
+  const d = new Date(e.date + 'T12:00:00');
+  const dateStr = `${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  let tags = [];
+  try { tags = JSON.parse(e.tags || '[]'); } catch(err) {}
+
+  const modal = document.getElementById('modal-content');
+  modal.innerHTML = `
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div class="event-type-badge" style="margin-bottom:12px">${EVENT_TYPE_LABELS[e.event_type] || e.event_type}</div>
+    <h2>${esc(e.title)}</h2>
+    <div class="meta-line">${dateStr} · ${e.time_start}${e.time_end ? ' – ' + e.time_end : ''}</div>
+    <div class="meta-line">${esc(e.location_name || '')}${e.neighborhood ? ' · ' + esc(e.neighborhood) : ''}${e.city && e.city !== 'San Francisco' ? ', ' + esc(e.city) : ''}</div>
+    <div class="meta-line">Hosted by <a href="#" onclick="showProfile(${e.host_id}); closeModal();" style="color:var(--accent);text-decoration:underline">${esc(e.host_name)}</a>${e.capacity ? ' · Capacity: ' + e.capacity : ''}${e.rsvp_count ? ' · ' + e.rsvp_count + ' going' : ''}</div>
+    <div class="description">${esc(e.description)}</div>
+    ${tags.length ? '<div class="tag-list">' + tags.map(t => `<span class="tag">${esc(t)}</span>`).join('') + '</div>' : ''}
+    ${currentUser ? `<button class="btn btn-accent" onclick="rsvpEvent(${e.id})">I'm Going</button>` : '<p style="margin-top:16px;font-size:0.85rem;color:var(--muted)"><a href="#" onclick="navigate(\'login\');closeModal();" style="color:var(--accent)">Sign in</a> to RSVP</p>'}
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+async function rsvpEvent(id) {
+  const data = await api(`/api/events/${id}/rsvp`, { method: 'POST' });
+  if (data.ok) {
+    showEventModal(id); // refresh
+  }
+}
+
+function closeModal(e) {
+  if (e && e.target !== e.currentTarget) return;
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ─── PEOPLE ───
+async function loadPeople() {
+  const role = document.getElementById('people-filter-role').value;
+  const hood = document.getElementById('people-filter-hood').value;
+  const q = document.getElementById('people-search').value;
+
+  let url = '/api/users?';
+  if (role) url += `role=${role}&`;
+  if (hood) url += `neighborhood=${encodeURIComponent(hood)}&`;
+  if (q) url += `q=${encodeURIComponent(q)}&`;
+
+  const users = await api(url);
+  const grid = document.getElementById('people-grid');
+
+  grid.innerHTML = users.map(u => {
+    let artTypes = [];
+    try { artTypes = JSON.parse(u.art_types || '[]'); } catch(e) {}
+    return `
+      <div class="profile-card" onclick="showProfile(${u.id})">
+        <div class="name">${esc(u.display_name)}</div>
+        <span class="role-badge ${u.role}">${u.role}</span>
+        <div class="hood">${esc(u.neighborhood)}${u.city && u.city !== 'San Francisco' ? ', ' + esc(u.city) : ''}</div>
+        <div class="bio">${esc(u.bio)}</div>
+        ${artTypes.length ? '<div class="tag-list">' + artTypes.map(t => `<span class="tag">${esc(t)}</span>`).join('') + '</div>' : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+async function showProfile(id) {
+  const u = await api(`/api/users/${id}`);
+  if (u.error) return;
+
+  let artTypes = [];
+  try { artTypes = JSON.parse(u.art_types || '[]'); } catch(e) {}
+
+  const content = document.getElementById('profile-content');
+  content.innerHTML = `
+    <div style="max-width:600px;">
+      <h2 style="font-family:var(--font-display);font-size:1.8rem;font-weight:400;margin-bottom:4px;">${esc(u.display_name)}</h2>
+      <span class="role-badge ${u.role}" style="margin-bottom:12px">${u.role}</span>
+      <div style="color:var(--muted);font-size:0.85rem;margin-bottom:16px;">
+        ${esc(u.neighborhood)}${u.city && u.city !== 'San Francisco' ? ', ' + esc(u.city) : ''}
+        ${u.instagram ? ' · <a href="https://instagram.com/' + esc(u.instagram.replace('@','')) + '" target="_blank" style="color:var(--accent)">' + esc(u.instagram) + '</a>' : ''}
+        ${u.website ? ' · <a href="https://' + esc(u.website) + '" target="_blank" style="color:var(--accent)">' + esc(u.website) + '</a>' : ''}
+      </div>
+      <p style="font-size:0.95rem;line-height:1.6;margin-bottom:16px;">${esc(u.bio)}</p>
+      ${u.space_description ? '<div style="padding:14px;background:var(--tag-bg);border-radius:var(--radius);margin-bottom:16px;"><strong style="font-size:0.75rem;text-transform:uppercase;letter-spacing:1px;color:var(--muted);">Space</strong><p style="font-size:0.9rem;margin-top:6px;">' + esc(u.space_description) + (u.capacity ? ' <span style="color:var(--muted)">· Capacity: ' + u.capacity + '</span>' : '') + '</p></div>' : ''}
+      ${artTypes.length ? '<div class="tag-list">' + artTypes.map(t => `<span class="tag">${esc(t)}</span>`).join('') + '</div>' : ''}
+      <button class="btn" onclick="navigate('people')" style="margin-top:20px">&larr; Back to People</button>
+    </div>
+  `;
+  navigate('profile');
+}
+
+// ─── BOARD ───
+async function loadPosts() {
+  const type = document.getElementById('board-filter-type').value;
+  const q = document.getElementById('board-search').value;
+  let url = '/api/posts?';
+  if (type) url += `type=${type}&`;
+  if (q) url += `q=${encodeURIComponent(q)}&`;
+
+  const posts = await api(url);
+  const list = document.getElementById('posts-list');
+
+  if (posts.length === 0) {
+    list.innerHTML = '<p style="color:var(--muted);font-size:0.9rem;">No posts yet. Be the first!</p>';
+    return;
+  }
+
+  list.innerHTML = posts.map(p => {
+    let tags = [];
+    try { tags = JSON.parse(p.tags || '[]'); } catch(e) {}
+    return `
+      <div class="post-card">
+        <h3><span class="post-type-badge">${POST_TYPE_LABELS[p.post_type] || p.post_type}</span>${esc(p.title)}</h3>
+        <div class="post-meta">by <a href="#" onclick="showProfile(${p.user_id})" style="color:var(--accent)">${esc(p.author_name)}</a> · @${esc(p.author_username)}</div>
+        <div class="post-body">${esc(p.body)}</div>
+        ${tags.length ? '<div class="tag-list" style="margin-top:8px">' + tags.map(t => `<span class="tag">${esc(t)}</span>`).join('') + '</div>' : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function showCreatePost() {
+  if (!currentUser) return navigate('login');
+  navigate('create-post');
+}
+
+async function doCreatePost() {
+  const errEl = document.getElementById('post-error');
+  errEl.style.display = 'none';
+  const payload = {
+    title: document.getElementById('post-title').value,
+    body: document.getElementById('post-body').value,
+    post_type: document.getElementById('post-type').value,
+    tags: document.getElementById('post-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+  };
+  const data = await api('/api/posts', { method: 'POST', body: JSON.stringify(payload) });
+  if (data.error) {
+    errEl.textContent = data.error;
+    errEl.style.display = 'block';
+  } else {
+    navigate('board');
+  }
+}
+
+// ─── CREATE EVENT ───
+async function doCreateEvent() {
+  if (!currentUser) return navigate('login');
+  const errEl = document.getElementById('event-error');
+  errEl.style.display = 'none';
+
+  const payload = {
+    title: document.getElementById('event-title').value,
+    event_type: document.getElementById('event-type').value,
+    date: document.getElementById('event-date').value,
+    time_start: document.getElementById('event-start').value,
+    time_end: document.getElementById('event-end').value,
+    location_name: document.getElementById('event-location').value,
+    neighborhood: document.getElementById('event-hood').value,
+    capacity: parseInt(document.getElementById('event-capacity').value) || 0,
+    description: document.getElementById('event-desc').value,
+    tags: document.getElementById('event-tags').value.split(',').map(t => t.trim()).filter(Boolean),
+  };
+  const data = await api('/api/events', { method: 'POST', body: JSON.stringify(payload) });
+  if (data.error) {
+    errEl.textContent = data.error;
+    errEl.style.display = 'block';
+  } else {
+    navigate('calendar');
+  }
+}
+
+// ─── UTILS ───
+function esc(s) {
+  if (!s) return '';
+  const div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+
+let debounceTimers = {};
+function debounce(fn, ms) {
+  return function() {
+    clearTimeout(debounceTimers[fn.name]);
+    debounceTimers[fn.name] = setTimeout(fn, ms);
+  };
+}
+
+// Close modal on Escape
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
