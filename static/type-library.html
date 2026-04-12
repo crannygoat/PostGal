@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Type Library — Learn Typing the Natural Way</title>
+    <link href="https://fonts.googleapis.com/css2?family=Georgia:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --ink: #1a1a2e;
+            --mist: #f4f3ef;
+            --leaf: #3a7d44;
+            --gold: #c8963e;
+            --shadow: rgba(26, 26, 46, 0.1);
+        }
+
+        body {
+            font-family: Georgia, serif;
+            background-color: var(--mist);
+            color: var(--ink);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(58, 125, 68, 0.8));
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--mist);
+        }
+
+        .logo-icon {
+            font-size: 1.5rem;
+        }
+
+        .logo-text {
+            font-size: 1.25rem;
+            font-weight: 700;
+            font-family: Georgia, serif;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--mist);
+            text-decoration: none;
+            font-size: 0.95rem;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+        }
+
+        .branding {
+            color: var(--gold);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* Main container */
+        .container {
+            display: flex;
+            height: calc(100vh - 60px);
+        }
+
+        /* Left panel - Bookshelf */
+        .bookshelf-panel {
+            width: 25%;
+            background: linear-gradient(180deg, #faf9f6, #f4f3ef);
+            padding: 2rem;
+            overflow-y: auto;
+            border-right: 1px solid rgba(26, 26, 46, 0.1);
+            box-shadow: inset 2px 0 8px rgba(26, 26, 46, 0.05);
+        }
+
+        .bookshelf-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        .shelf {
+            margin-bottom: 2rem;
+        }
+
+        .shelf-label {
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--ink);
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .shelf-line {
+            height: 3px;
+            background: linear-gradient(90deg, var(--gold), rgba(200, 150, 62, 0.3));
+            margin-bottom: 1rem;
+            border-radius: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shelf-progress {
+            height: 100%;
+            background: var(--gold);
+            width: 0%;
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+
+        .books {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            height: 50px;
+        }
+
+        .book {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: white;
+            border-radius: 2px 2px 0 0;
+            transition: all 0.3s ease;
+            min-width: 20px;
+            padding: 0.3rem;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .book.completed {
+            background: linear-gradient(135deg, var(--leaf), #2d6a3a);
+            box-shadow: 0 2px 6px rgba(58, 125, 68, 0.3);
+        }
+
+        .book.in-progress {
+            background: linear-gradient(135deg, var(--gold), #d4a858);
+            opacity: 0.7;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        /* Level indicator */
+        .level-info {
+            background: white;
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .level-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .level-name {
+            font-size: 0.9rem;
+            color: var(--ink);
+            margin-top: 0.5rem;
+            font-weight: 600;
+        }
+
+        .level-accuracy {
+            font-size: 0.85rem;
+            color: var(--ink);
+            opacity: 0.7;
+            margin-top: 0.5rem;
+        }
+
+        /* Right panel - Game area */
+        .game-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, var(--mist), #faf9f6);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-bar {
+            background: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid rgba(26, 26, 46, 0.1);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--ink);
+            opacity: 0.6;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--leaf);
+        }
+
+        /* Game canvas area */
+        .game-area {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+            background: linear-gradient(180deg, rgba(244, 243, 239, 0.5), var(--mist));
+        }
+
+        .words-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .falling-word {
+            position: absolute;
+            font-size: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--ink);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            background: white;
+            box-shadow: 0 4px 12px var(--shadow);
+            cursor: default;
+            user-select: none;
+            transition: transform 0.1s linear;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .falling-word.active {
+            border: 2px solid var(--leaf);
+            box-shadow: 0 4px 16px rgba(58, 125, 68, 0.3);
+            background: rgba(58, 125, 68, 0.05);
+        }
+
+        .falling-word.missed {
+            opacity: 0.3;
+            color: var(--ink);
+        }
+
+        .letter {
+            display: inline;
+            transition: color 0.1s;
+        }
+
+        .letter.correct {
+            color: var(--leaf);
+            font-weight: 700;
+        }
+
+        .letter.current {
+            color: var(--gold);
+            font-weight: 700;
+            animation: blink 0.6s infinite;
+        }
+
+        @keyframes blink {
+            0%, 49%, 100% { opacity: 1; }
+            50%, 99% { opacity: 0.5; }
+        }
+
+        .letter.incorrect {
+            color: #e74c3c;
+        }
+
+        .wobble {
+            animation: wobble 0.4s ease;
+        }
+
+        @keyframes wobble {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        /* Input area */
+        .input-area {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-top: 1px solid rgba(26, 26, 46, 0.1);
+            box-shadow: 0 -2px 8px var(--shadow);
+            position: relative;
+            z-index: 10;
+        }
+
+        .input-label {
+            font-size: 0.8rem;
+            color: var(--ink);
+            opacity: 0.6;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-display {
+            font-size: 1.3rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            color: var(--ink);
+            padding: 0.75rem;
+            background: #faf9f6;
+            border: 2px solid var(--gold);
+            border-radius: 4px;
+            min-height: 2.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .input-display.error {
+            background: rgba(231, 76, 60, 0.05);
+            border-color: #e74c3c;
+            animation: inputWobble 0.4s ease;
+        }
+
+        @keyframes inputWobble {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .input-display.success {
+            background: rgba(58, 125, 68, 0.1);
+            border-color: var(--leaf);
+            animation: successFlash 0.4s ease;
+        }
+
+        @keyframes successFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Modal overlays */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(26, 26, 46, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(26, 26, 46, 0.2);
+            max-width: 600px;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 1rem;
+        }
+
+        .modal-message {
+            font-size: 1.1rem;
+            color: var(--ink);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .modal-stats {
+            background: #f4f3ef;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .modal-stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-stat-label {
+            font-size: 0.8rem;
+            color: var(--ink);
+            opacity: 0.6;
+            margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .modal-stat-value {
+            font-size: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-family: Georgia, serif;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--leaf), #2d6a3a);
+            color: white;
+            box-shadow: 0 4px 12px rgba(58, 125, 68, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(58, 125, 68, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--leaf);
+            border: 2px solid var(--leaf);
+        }
+
+        .btn-secondary:hover {
+            background: var(--leaf);
+            color: white;
+        }
+
+        /* Welcome screen */
+        .welcome-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--mist), #faf9f6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 500;
+            gap: 2rem;
+        }
+
+        .welcome-screen.hidden {
+            display: none;
+        }
+
+        .welcome-title {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 1rem;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.3rem;
+            color: var(--ink);
+            opacity: 0.7;
+            margin-bottom: 2rem;
+        }
+
+        .level-select {
+            background: white;
+            border: 2px solid var(--gold);
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 8px 24px var(--shadow);
+        }
+
+        .level-select-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .level-button {
+            padding: 1rem;
+            background: white;
+            border: 2px solid var(--gold);
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: Georgia, serif;
+            font-weight: 600;
+            color: var(--gold);
+            transition: all 0.2s;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .level-button:hover {
+            background: var(--gold);
+            color: white;
+            box-shadow: 0 4px 12px rgba(200, 150, 62, 0.3);
+        }
+
+        .level-button.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .level-button.locked:hover {
+            background: white;
+            color: var(--gold);
+            box-shadow: none;
+        }
+
+        .level-button-num {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .level-button-desc {
+            font-size: 0.7rem;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        .coding-tracks-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .coding-tracks {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .track-button {
+            padding: 0.75rem;
+            background: white;
+            border: 2px solid var(--leaf);
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: Georgia, serif;
+            font-weight: 600;
+            color: var(--leaf);
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .track-button:hover {
+            background: var(--leaf);
+            color: white;
+        }
+
+        .track-button.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .track-button.locked:hover {
+            background: white;
+            color: var(--leaf);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--mist);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--leaf);
+        }
+
+        /* Hidden input for keyboard capture */
+        .hidden-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="../../../fun" class="logo">
+            <span class="logo-icon">📚</span>
+            <span class="logo-text">Type Library</span>
+        </a>
+        <div class="header-links">
+            <a href="../../../fun" class="nav-link">← Back</a>
+            <span class="branding">treeline.work</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Bookshelf Panel -->
+        <div class="bookshelf-panel">
+            <div class="bookshelf-title">Your Library</div>
+
+            <div id="shelves-container"></div>
+
+            <div class="level-info">
+                <div class="level-number" id="level-display">1</div>
+                <div class="level-name" id="level-name">Home Row</div>
+                <div class="level-accuracy" id="level-accuracy">0% • 0/0 words</div>
+            </div>
+        </div>
+
+        <!-- Game Panel -->
+        <div class="game-panel">
+            <div class="stats-bar">
+                <div class="stat">
+                    <div class="stat-label">Words Caught</div>
+                    <div class="stat-value" id="score-display">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Accuracy</div>
+                    <div class="stat-value" id="accuracy-display">—</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">WPM</div>
+                    <div class="stat-value" id="wpm-display">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Streak</div>
+                    <div class="stat-value" id="streak-display">0</div>
+                </div>
+            </div>
+
+            <div class="game-area">
+                <div class="welcome-screen" id="welcome-screen">
+                    <div class="welcome-title">Type Library</div>
+                    <div class="welcome-subtitle">Learn typing the natural way</div>
+
+                    <div class="level-select">
+                        <div class="level-select-title">Choose Your Starting Point</div>
+
+                        <div class="level-grid" id="level-grid"></div>
+
+                        <div class="coding-tracks-title" id="coding-tracks-label" style="display: none;">
+                            Coding Tracks (unlocked after level 6)
+                        </div>
+                        <div class="coding-tracks" id="coding-tracks"></div>
+                    </div>
+                </div>
+
+                <div class="words-container" id="words-container"></div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-label" id="input-label">Type to catch words</div>
+                <div class="input-display" id="input-display"></div>
+            </div>
+
+            <input type="text" class="hidden-input" id="hidden-input" autofocus>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="level-complete-modal">
+        <div class="modal-content">
+            <div class="modal-title">Level Complete! 🎉</div>
+            <div class="modal-message" id="level-complete-message"></div>
+            <div class="modal-stats" id="level-complete-stats"></div>
+            <div class="button-group">
+                <button class="btn-primary" onclick="game.nextLevel()">Next Level</button>
+                <button class="btn-secondary" onclick="game.showWelcome()">Choose Level</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Web Audio API context
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        // Game configuration
+        const LEVELS = [
+            {
+                id: 1,
+                name: "Home Row",
+                description: "Master the foundation",
+                words: ["a", "s", "d", "f", "j", "k", "l", ";", "as", "ad", "fad", "sad", "fall", "add", "jad"],
+                speedMultiplier: 1,
+                minAccuracy: 80,
+                requiresCorrectness: false
+            },
+            {
+                id: 2,
+                name: "Common Words",
+                description: "Build vocabulary",
+                words: ["the", "and", "has", "all", "sad", "fall", "adds", "falls", "a", "as", "ad", "fad"],
+                speedMultiplier: 1.1,
+                minAccuracy: 80,
+                requiresCorrectness: false
+            },
+            {
+                id: 3,
+                name: "Top Row",
+                description: "Expand reach",
+                words: ["pet", "wet", "yet", "quit", "quote", "true", "type", "query", "are", "art", "ear", "era"],
+                speedMultiplier: 1.2,
+                minAccuracy: 80,
+                requiresCorrectness: false
+            },
+            {
+                id: 4,
+                name: "Full Alphabet",
+                description: "Complete coverage",
+                words: ["quick", "brown", "fox", "jumps", "lazy", "dog", "alphabet", "example", "computer", "keyboard"],
+                speedMultiplier: 1.3,
+                minAccuracy: 80,
+                requiresCorrectness: false
+            },
+            {
+                id: 5,
+                name: "Numbers & Symbols",
+                description: "Add precision",
+                words: ["123", "2024", "hello!", "what?", "$100", "50%", "#hashtag", "test@email.com", "key&lock"],
+                speedMultiplier: 1.4,
+                minAccuracy: 80,
+                requiresCorrectness: true
+            },
+            {
+                id: 6,
+                name: "Capitalization",
+                description: "Mind your case",
+                words: ["Hello", "Alice", "Monday", "JavaScript", "Python", "New York", "The", "Code", "System"],
+                speedMultiplier: 1.5,
+                minAccuracy: 85,
+                requiresCorrectness: true
+            },
+            {
+                id: 7,
+                name: "Phrases & Sentences",
+                description: "Longer passages",
+                words: ["The quick brown fox", "How are you today", "Learning to type well", "Practice makes perfect"],
+                speedMultiplier: 1.6,
+                minAccuracy: 85,
+                requiresCorrectness: true
+            },
+            {
+                id: 8,
+                name: "Comma Mastery",
+                description: "Punctuation matters",
+                words: ["Hello, world", "One, two, three", "Yes, I agree", "The cat, dog, and bird", "Therefore, we conclude"],
+                speedMultiplier: 1.7,
+                minAccuracy: 85,
+                requiresCorrectness: true
+            },
+            {
+                id: 9,
+                name: "Paragraphs",
+                description: "Multi-sentence flow",
+                words: ["The sun rose over the horizon. Birds sang their morning songs. It was a beautiful day.", "She typed carefully. Each keystroke mattered. Focus brought clarity."],
+                speedMultiplier: 1.8,
+                minAccuracy: 85,
+                requiresCorrectness: true
+            },
+            {
+                id: 10,
+                name: "Speed Challenge",
+                description: "Test your fingers",
+                words: ["quick", "fast", "rapid", "swift", "speedy", "brisk", "fleet", "hurried", "rushing", "racing"],
+                speedMultiplier: 2.2,
+                minAccuracy: 80,
+                requiresCorrectness: false
+            },
+            {
+                id: 11,
+                name: "Grammar Fix",
+                description: "Correct and retype",
+                words: ["She go to the store → She goes to the store", "They is happy → They are happy", "I dont know → I don't know"],
+                speedMultiplier: 1.5,
+                minAccuracy: 90,
+                requiresCorrectness: true
+            },
+            {
+                id: 12,
+                name: "Master's Mastery",
+                description: "Everything combined",
+                words: ["The quick, brown fox jumps over the lazy dog!", "Alice@Example.com typed 150 WPM on 2024-01-15.", "Therefore, we must conclude: practice works."],
+                speedMultiplier: 2.0,
+                minAccuracy: 90,
+                requiresCorrectness: true
+            }
+        ];
+
+        const CODING_TRACKS = [
+            { id: "python", name: "Python", icon: "🐍" },
+            { id: "javascript", name: "JavaScript", icon: "⚡" },
+            { id: "html-css", name: "HTML/CSS", icon: "🎨" },
+            { id: "terminal", name: "Terminal/CLI", icon: "💻" }
+        ];
+
+        // Game state
+        const gameState = {
+            currentLevel: null,
+            currentTrack: null,
+            score: 0,
+            totalWords: 0,
+            correctWords: 0,
+            startTime: null,
+            fallingWords: [],
+            activeLevelWords: [],
+            typedBuffer: "",
+            activeWordIndex: null,
+            levelProgress: {},
+            completedLevels: new Set(),
+            wordStats: {},
+            lastInputTime: 0,
+            incorrectAttempts: 0,
+            correctStreak: 0,
+            totalDistance: 0
+        };
+
+        // Initialize level progress
+        LEVELS.forEach(level => {
+            gameState.levelProgress[level.id] = {
+                attempts: 0,
+                caught: 0,
+                missed: 0,
+                accuracy: 0
+            };
+        });
+
+        // Initialize game
+        function init() {
+            renderWelcomeScreen();
+            document.getElementById('hidden-input').focus();
+            document.getElementById('hidden-input').addEventListener('keydown', handleKeyDown);
+        }
+
+        // Render welcome screen
+        function renderWelcomeScreen() {
+            const levelGrid = document.getElementById('level-grid');
+            levelGrid.innerHTML = '';
+
+            LEVELS.forEach(level => {
+                const button = document.createElement('button');
+                button.className = 'level-button';
+                if (level.id > 1 && !gameState.completedLevels.has(level.id - 1)) {
+                    button.classList.add('locked');
+                }
+                button.innerHTML = `
+                    <div class="level-button-num">${level.id}</div>
+                    <div class="level-button-desc">${level.description}</div>
+                `;
+                button.onclick = () => gameState.completedLevels.has(level.id - 1) || level.id === 1 ? game.startLevel(level.id) : null;
+                levelGrid.appendChild(button);
+            });
+
+            // Show coding tracks if level 6 is completed
+            const codingTracksLabel = document.getElementById('coding-tracks-label');
+            const codingTracksDiv = document.getElementById('coding-tracks');
+            if (gameState.completedLevels.has(6)) {
+                codingTracksLabel.style.display = 'block';
+                codingTracksDiv.innerHTML = '';
+                CODING_TRACKS.forEach(track => {
+                    const button = document.createElement('button');
+                    button.className = 'track-button';
+                    button.innerHTML = `${track.icon} ${track.name}`;
+                    button.onclick = () => game.startTrack(track.id);
+                    codingTracksDiv.appendChild(button);
+                });
+            } else {
+                codingTracksLabel.style.display = 'none';
+            }
+
+            document.getElementById('welcome-screen').classList.remove('hidden');
+        }
+
+        // Render bookshelf
+        function renderBookshelf() {
+            const container = document.getElementById('shelves-container');
+            container.innerHTML = '';
+
+            for (let i = 1; i <= 12; i++) {
+                const shelf = document.createElement('div');
+                shelf.className = 'shelf';
+
+                const label = document.createElement('div');
+                label.className = 'shelf-label';
+                label.textContent = `Level ${i}`;
+
+                const line = document.createElement('div');
+                line.className = 'shelf-line';
+                const progress = document.createElement('div');
+                progress.className = 'shelf-progress';
+                const levelProgress = gameState.levelProgress[i];
+                const progressPercent = levelProgress.attempts > 0 ? (levelProgress.caught / levelProgress.attempts) * 100 : 0;
+                progress.style.width = `${Math.min(progressPercent, 100)}%`;
+                line.appendChild(progress);
+
+                const books = document.createElement('div');
+                books.className = 'books';
+
+                if (gameState.completedLevels.has(i)) {
+                    for (let j = 0; j < 3; j++) {
+                        const book = document.createElement('div');
+                        book.className = 'book completed';
+                        book.textContent = '█';
+                        books.appendChild(book);
+                    }
+                } else if (i === gameState.currentLevel) {
+                    for (let j = 0; j < levelProgress.caught; j++) {
+                        const book = document.createElement('div');
+                        book.className = 'book in-progress';
+                        book.textContent = '█';
+                        books.appendChild(book);
+                    }
+                }
+
+                shelf.appendChild(label);
+                shelf.appendChild(line);
+                shelf.appendChild(books);
+                container.appendChild(shelf);
+            }
+        }
+
+        // Start a level
+        const game = {
+            startLevel(levelId) {
+                gameState.currentLevel = levelId;
+                gameState.currentTrack = null;
+                gameState.score = 0;
+                gameState.totalWords = 0;
+                gameState.correctWords = 0;
+                gameState.startTime = Date.now();
+                gameState.fallingWords = [];
+                gameState.activeLevelWords = [];
+                gameState.typedBuffer = "";
+                gameState.activeWordIndex = null;
+                gameState.incorrectAttempts = 0;
+                gameState.correctStreak = 0;
+
+                const level = LEVELS.find(l => l.id === levelId);
+                gameState.activeLevelWords = [...level.words];
+
+                document.getElementById('welcome-screen').classList.add('hidden');
+                document.getElementById('hidden-input').focus();
+                updateUI();
+                renderBookshelf();
+
+                gameLoop();
+            },
+
+            startTrack(trackId) {
+                gameState.currentTrack = trackId;
+                gameState.currentLevel = null;
+                gameState.score = 0;
+                gameState.totalWords = 0;
+                gameState.correctWords = 0;
+                gameState.startTime = Date.now();
+                gameState.fallingWords = [];
+                gameState.typedBuffer = "";
+                gameState.activeWordIndex = null;
+                gameState.incorrectAttempts = 0;
+                gameState.correctStreak = 0;
+
+                // Load track-specific words
+                const trackWords = {
+                    python: ["def", "class", "return", "import", "if __name__", "python", "list", "dict"],
+                    javascript: ["const", "function", "async", "await", "console.log", "useState", "react"],
+                    "html-css": ["<div>", "<span>", ".class", "#id", "display", "grid", "flex"],
+                    terminal: ["cd", "ls", "git", "npm", "node", "python", "grep", "find"]
+                };
+
+                gameState.activeLevelWords = trackWords[trackId] || [];
+                document.getElementById('welcome-screen').classList.add('hidden');
+                document.getElementById('hidden-input').focus();
+                updateUI();
+                gameLoop();
+            },
+
+            nextLevel() {
+                const nextLevelId = gameState.currentLevel + 1;
+                if (nextLevelId <= 12) {
+                    game.startLevel(nextLevelId);
+                } else {
+                    gameState.completedLevels.add(12);
+                    game.showWelcome();
+                }
+            },
+
+            showWelcome() {
+                gameState.fallingWords = [];
+                renderWelcomeScreen();
+                document.getElementById('hidden-input').focus();
+            }
+        };
+
+        // Handle keyboard input
+        function handleKeyDown(e) {
+            if (e.key === 'Escape') {
+                game.showWelcome();
+                return;
+            }
+
+            if (e.key === ' ') {
+                e.preventDefault();
+            }
+
+            const key = e.key;
+            gameState.lastInputTime = Date.now();
+
+            // Handle backspace
+            if (key === 'Backspace') {
+                gameState.typedBuffer = gameState.typedBuffer.slice(0, -1);
+                updateInputDisplay();
+                return;
+            }
+
+            // Handle normal character input
+            if (key.length === 1) {
+                gameState.typedBuffer += key;
+                updateInputDisplay();
+
+                // Play keystroke sound
+                playKeystrokeSound();
+
+                // Find matching words
+                updateActiveWord();
+
+                // Check if we completed a word
+                if (gameState.activeWordIndex !== null) {
+                    const word = gameState.activeLevelWords[gameState.activeWordIndex];
+                    const typed = gameState.typedBuffer.toLowerCase();
+                    const wordLower = word.toLowerCase();
+
+                    if (typed === wordLower) {
+                        completeWord();
+                    }
+                }
+            }
+        }
+
+        // Update active word based on typed buffer
+        function updateActiveWord() {
+            if (gameState.typedBuffer.length === 0) {
+                gameState.activeWordIndex = null;
+                return;
+            }
+
+            const typed = gameState.typedBuffer.toLowerCase();
+            let bestMatch = null;
+            let bestMatchIndex = null;
+
+            for (let i = 0; i < gameState.fallingWords.length; i++) {
+                const word = gameState.fallingWords[i];
+                const wordLower = word.word.toLowerCase();
+
+                if (wordLower.startsWith(typed)) {
+                    if (bestMatch === null || typed.length > bestMatch.length) {
+                        bestMatch = wordLower;
+                        bestMatchIndex = i;
+                    }
+                }
+            }
+
+            gameState.activeWordIndex = bestMatchIndex;
+        }
+
+        // Complete a word
+        function completeWord() {
+            if (gameState.activeWordIndex === null) return;
+
+            const word = gameState.fallingWords[gameState.activeWordIndex];
+            gameState.score++;
+            gameState.correctWords++;
+            gameState.correctStreak++;
+            gameState.totalWords++;
+
+            // Play completion sound
+            playCompletionSound();
+
+            // Remove word from falling words
+            gameState.fallingWords.splice(gameState.activeWordIndex, 1);
+            gameState.typedBuffer = "";
+            gameState.activeWordIndex = null;
+
+            // Update level progress
+            if (gameState.currentLevel) {
+                gameState.levelProgress[gameState.currentLevel].caught++;
+            }
+
+            // Check if level complete
+            checkLevelComplete();
+            updateUI();
+        }
+
+        // Update input display
+        function updateInputDisplay() {
+            const display = document.getElementById('input-display');
+            display.innerHTML = '';
+
+            if (gameState.typedBuffer.length === 0) {
+                display.textContent = '';
+                return;
+            }
+
+            if (gameState.activeWordIndex === null) {
+                // No matching word
+                display.classList.add('error');
+                display.textContent = gameState.typedBuffer;
+            } else {
+                display.classList.remove('error');
+                const word = gameState.fallingWords[gameState.activeWordIndex].word;
+                const typed = gameState.typedBuffer.toLowerCase();
+                const wordLower = word.toLowerCase();
+
+                for (let i = 0; i < word.length; i++) {
+                    const span = document.createElement('span');
+                    span.className = 'letter';
+
+                    if (i < typed.length) {
+                        if (typed[i] === wordLower[i]) {
+                            span.classList.add('correct');
+                        } else {
+                            span.classList.add('incorrect');
+                        }
+                    } else if (i === typed.length) {
+                        span.classList.add('current');
+                    }
+
+                    span.textContent = word[i];
+                    display.appendChild(span);
+                }
+            }
+        }
+
+        // Game loop
+        let lastSpawnTime = 0;
+        const SPAWN_INTERVAL = 800;
+
+        function gameLoop() {
+            const now = Date.now();
+
+            // Spawn new words
+            if (now - lastSpawnTime > SPAWN_INTERVAL) {
+                if (gameState.activeLevelWords.length > 0) {
+                    const word = gameState.activeLevelWords[Math.floor(Math.random() * gameState.activeLevelWords.length)];
+                    const x = Math.random() * (window.innerWidth - 200);
+
+                    gameState.fallingWords.push({
+                        word: word,
+                        x: x,
+                        y: 0,
+                        speed: (0.3 + Math.random() * 0.3) * (gameState.currentLevel ? LEVELS[gameState.currentLevel - 1].speedMultiplier : 1.5)
+                    });
+
+                    lastSpawnTime = now;
+                }
+            }
+
+            // Update falling words
+            const wordsContainer = document.getElementById('words-container');
+            wordsContainer.innerHTML = '';
+
+            for (let i = 0; i < gameState.fallingWords.length; i++) {
+                const word = gameState.fallingWords[i];
+                word.y += word.speed;
+
+                const el = document.createElement('div');
+                el.className = 'falling-word';
+
+                if (i === gameState.activeWordIndex) {
+                    el.classList.add('active');
+                }
+
+                if (word.y > window.innerHeight) {
+                    word.y = window.innerHeight + 100;
+                    el.classList.add('missed');
+                    if (gameState.currentLevel) {
+                        gameState.levelProgress[gameState.currentLevel].missed++;
+                    }
+                    gameState.totalWords++;
+                }
+
+                el.style.left = word.x + 'px';
+                el.style.top = (word.y + 100) + 'px';
+                el.textContent = word.word;
+
+                wordsContainer.appendChild(el);
+            }
+
+            // Clean up missed words
+            gameState.fallingWords = gameState.fallingWords.filter(w => w.y <= window.innerHeight + 100);
+
+            updateUI();
+
+            if (!document.getElementById('welcome-screen').classList.contains('hidden')) {
+                return;
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Check if level is complete
+        function checkLevelComplete() {
+            if (!gameState.currentLevel) return;
+
+            const progress = gameState.levelProgress[gameState.currentLevel];
+            if (progress.attempts === 0) progress.attempts = 1;
+
+            const accuracy = (progress.caught / (progress.caught + progress.missed)) * 100;
+
+            if (progress.caught >= 10 && accuracy >= LEVELS[gameState.currentLevel - 1].minAccuracy) {
+                completeLevelModal();
+            }
+        }
+
+        // Level complete modal
+        function completeLevelModal() {
+            gameState.completedLevels.add(gameState.currentLevel);
+
+            const level = LEVELS[gameState.currentLevel - 1];
+            const progress = gameState.levelProgress[gameState.currentLevel];
+            const accuracy = (progress.caught / (progress.caught + progress.missed)) * 100;
+            const elapsedSeconds = (Date.now() - gameState.startTime) / 1000;
+            const wpm = (gameState.score / 5) / (elapsedSeconds / 60);
+
+            document.getElementById('level-complete-message').textContent =
+                `You've mastered Level ${gameState.currentLevel}: ${level.name}! Your library grows.`;
+
+            const statsHtml = `
+                <div class="modal-stat">
+                    <div class="modal-stat-label">Accuracy</div>
+                    <div class="modal-stat-value">${accuracy.toFixed(1)}%</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-label">WPM</div>
+                    <div class="modal-stat-value">${wpm.toFixed(0)}</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-label">Words Caught</div>
+                    <div class="modal-stat-value">${gameState.score}</div>
+                </div>
+            `;
+
+            document.getElementById('level-complete-stats').innerHTML = statsHtml;
+            document.getElementById('level-complete-modal').classList.add('active');
+
+            renderBookshelf();
+        }
+
+        // Update UI
+        function updateUI() {
+            // Update stats bar
+            const elapsedSeconds = Math.max((Date.now() - gameState.startTime) / 1000, 1);
+            const wpm = (gameState.totalWords / 5) / (elapsedSeconds / 60);
+            const accuracy = gameState.totalWords > 0 ? (gameState.correctWords / gameState.totalWords) * 100 : 0;
+
+            document.getElementById('score-display').textContent = gameState.score;
+            document.getElementById('accuracy-display').textContent = accuracy > 0 ? accuracy.toFixed(0) + '%' : '—';
+            document.getElementById('wpm-display').textContent = wpm.toFixed(0);
+            document.getElementById('streak-display').textContent = gameState.correctStreak;
+
+            // Update level info
+            if (gameState.currentLevel) {
+                const level = LEVELS[gameState.currentLevel - 1];
+                document.getElementById('level-display').textContent = gameState.currentLevel;
+                document.getElementById('level-name').textContent = level.name;
+
+                const progress = gameState.levelProgress[gameState.currentLevel];
+                const levelAccuracy = (progress.caught + progress.missed) > 0
+                    ? (progress.caught / (progress.caught + progress.missed)) * 100
+                    : 0;
+                document.getElementById('level-accuracy').textContent =
+                    `${levelAccuracy.toFixed(0)}% • ${progress.caught}/${progress.caught + progress.missed} words`;
+            }
+        }
+
+        // Audio functions
+        function playKeystrokeSound() {
+            if (!gameState.activeWordIndex || gameState.activeWordIndex === null) return;
+
+            const word = gameState.fallingWords[gameState.activeWordIndex];
+            const typed = gameState.typedBuffer.length;
+            const wordLength = word.word.length;
+            const position = typed / wordLength;
+
+            const frequency = 200 + (position * 400);
+            const now = audioContext.currentTime;
+
+            const osc = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+
+            osc.connect(gain);
+            gain.connect(audioContext.destination);
+
+            osc.frequency.value = frequency;
+            osc.type = 'sine';
+
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+
+            osc.start(now);
+            osc.stop(now + 0.1);
+        }
+
+        function playCompletionSound() {
+            const now = audioContext.currentTime;
+            const frequencies = [262, 294, 330, 392]; // C, D, E, G
+
+            frequencies.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+
+                osc.frequency.value = freq;
+                osc.type = 'sine';
+
+                gain.gain.setValueAtTime(0.1, now + i * 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.05 + 0.2);
+
+                osc.start(now + i * 0.05);
+                osc.stop(now + i * 0.05 + 0.2);
+            });
+        }
+
+        function playErrorSound() {
+            const now = audioContext.currentTime;
+            const frequencies = [220, 196]; // A, G
+
+            frequencies.forEach((freq, i) => {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+
+                osc.frequency.value = freq;
+                osc.type = 'sine';
+
+                gain.gain.setValueAtTime(0.05, now + i * 0.1);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.15);
+
+                osc.start(now + i * 0.1);
+                osc.stop(now + i * 0.1 + 0.15);
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('load', init);
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

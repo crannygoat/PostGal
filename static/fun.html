@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fun — treeline.work</title>
+<style>
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box }
+  :root {
+    --ink:       #1a1a2e;
+    --ink-soft:  #3d3d5c;
+    --mist:      #f4f3ef;
+    --leaf:      #3a7d44;
+    --leaf-dark: #2a5e32;
+    --leaf-pale: #e8f5ea;
+    --gold:      #c8963e;
+    --gold-pale: #fdf4e3;
+    --radius:    12px;
+    --shadow:    0 4px 24px rgba(0,0,0,.10);
+  }
+  html { scroll-behavior: smooth }
+  body {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    background: var(--mist);
+    color: var(--ink);
+    line-height: 1.65;
+  }
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: #fff;
+    padding: 0 clamp(1.5rem, 5vw, 4rem);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .site-name {
+    font-family: monospace;
+    font-size: 1.1rem;
+    letter-spacing: .04em;
+    color: #a8d5b0;
+    text-decoration: none;
+  }
+  nav a {
+    color: #ccc;
+    text-decoration: none;
+    font-family: monospace;
+    font-size: .85rem;
+    margin-left: 2rem;
+    letter-spacing: .03em;
+    transition: color .2s;
+  }
+  nav a:hover, nav a.active { color: #a8d5b0 }
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, var(--ink) 0%, #2a2a4a 60%, #1e3a28 100%);
+    color: #fff;
+    padding: clamp(4rem, 10vw, 7rem) clamp(1.5rem, 6vw, 5rem);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 80%, rgba(58,125,68,.18) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(200,150,62,.10) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    background: rgba(168,213,176,.15);
+    border: 1px solid rgba(168,213,176,.35);
+    color: #a8d5b0;
+    font-family: monospace;
+    font-size: .78rem;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    padding: .35em 1em;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+  }
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: normal;
+    letter-spacing: -.01em;
+    margin-bottom: 1rem;
+    line-height: 1.15;
+  }
+  .hero h1 em { color: #a8d5b0; font-style: normal }
+  .hero p {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    color: #bbb;
+    max-width: 600px;
+    margin: 0 auto 2.5rem;
+  }
+  .hero-cta {
+    display: inline-flex;
+    gap: .75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .btn {
+    display: inline-block;
+    padding: .75em 1.75em;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: .92rem;
+    letter-spacing: .03em;
+    text-decoration: none;
+    font-weight: bold;
+    transition: transform .15s, box-shadow .15s, background .15s;
+    cursor: pointer;
+    border: none;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.2) }
+  .btn-primary { background: var(--leaf); color: #fff }
+  .btn-primary:hover { background: var(--leaf-dark) }
+  .btn-ghost { background: transparent; color: #a8d5b0; border: 1px solid rgba(168,213,176,.4) }
+  .btn-ghost:hover { background: rgba(168,213,176,.08) }
+  /* ── SECTION CHROME ── */
+  section { padding: clamp(3rem, 7vw, 5rem) clamp(1.5rem, 6vw, 5rem) }
+  .section-label {
+    font-family: monospace;
+    font-size: .75rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--leaf);
+    margin-bottom: .75rem;
+  }
+  .section-title {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: normal;
+    color: var(--ink);
+    line-height: 1.2;
+    margin-bottom: .75rem;
+  }
+  .section-sub {
+    color: var(--ink-soft);
+    font-size: 1.05rem;
+    max-width: 620px;
+    margin-bottom: 2.5rem;
+  }
+  /* ── GAME CARDS ── */
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.75rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .game-card {
+    background: #fff;
+    border-radius: calc(var(--radius) + 4px);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .game-card:hover { transform: translateY(-4px); box-shadow: 0 10px 40px rgba(0,0,0,.13) }
+  .card-preview {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-preview canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .92 }
+  .card-preview-overlay {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    color: #fff;
+  }
+  .card-preview-overlay .game-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: .4rem;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,.4));
+  }
+  .card-preview-overlay .game-title-preview {
+    font-family: monospace;
+    font-size: 1.3rem;
+    font-weight: bold;
+    letter-spacing: .08em;
+    text-shadow: 0 2px 8px rgba(0,0,0,.6);
+  }
+  /* Library card colours */
+  .card-library .card-preview { background: linear-gradient(135deg, #1a1520 0%, #1e1a25 50%, #201820 100%) }
+  /* Galaga card colours */
+  .card-galaga .card-preview  { background: linear-gradient(135deg, #0a0a18 0%, #0d0d22 50%, #080820 100%) }
+  .card-body { padding: 1.5rem 1.75rem 1.75rem; flex: 1; display: flex; flex-direction: column }
+  .card-tag {
+    display: inline-block;
+    font-family: monospace;
+    font-size: .7rem;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: .25em .8em;
+    border-radius: 100px;
+    margin-bottom: .9rem;
+  }
+  .tag-library { background: #e8f5ea; color: var(--leaf-dark) }
+  .tag-galaga  { background: #e8eaf6; color: #3949ab }
+  .card-body h3 {
+    font-size: 1.3rem;
+    font-weight: normal;
+    margin-bottom: .5rem;
+    color: var(--ink);
+  }
+  .card-body p {
+    color: var(--ink-soft);
+    font-size: .95rem;
+    flex: 1;
+    margin-bottom: 1.25rem;
+  }
+  .card-meta {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+  }
+  .meta-pill {
+    font-family: monospace;
+    font-size: .72rem;
+    background: var(--mist);
+    color: var(--ink-soft);
+    padding: .2em .7em;
+    border-radius: 100px;
+    letter-spacing: .04em;
+  }
+  .card-actions { display: flex; gap: .75rem }
+  .btn-play {
+    background: var(--leaf);
+    color: #fff;
+    padding: .6em 1.4em;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: .88rem;
+    font-weight: bold;
+    text-decoration: none;
+    letter-spacing: .04em;
+    transition: background .2s, transform .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: .4em;
+  }
+  .btn-play:hover { background: var(--leaf-dark); transform: translateY(-1px) }
+  .card-galaga .btn-play { background: #3949ab }
+  .card-galaga .btn-play:hover { background: #283593 }
+  /* ── PHILOSOPHY ── */
+  .philosophy { background: var(--leaf-pale); border-top: 1px solid #d0e8d4; border-bottom: 1px solid #d0e8d4 }
+  .philosophy-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem 4rem;
+  }
+  @media (max-width: 600px) { .philosophy-inner { grid-template-columns: 1fr } }
+  .philosophy h2 {
+    grid-column: 1 / -1;
+    font-size: clamp(1.4rem, 3.5vw, 2rem);
+    font-weight: normal;
+    color: var(--leaf-dark);
+    margin-bottom: -.5rem;
+  }
+  .philo-item h4 {
+    font-family: monospace;
+    font-size: .85rem;
+    letter-spacing: .06em;
+    color: var(--leaf-dark);
+    margin-bottom: .4rem;
+    text-transform: uppercase;
+  }
+  .philo-item p { color: var(--ink-soft); font-size: .95rem }
+  /* ── CONTRIBUTE ── */
+  .contribute { background: #fff; text-align: center }
+  .contribute-inner { max-width: 720px; margin: 0 auto }
+  .contribute-box {
+    background: linear-gradient(135deg, var(--ink) 0%, #2a3a50 100%);
+    border-radius: calc(var(--radius) + 4px);
+    padding: clamp(2rem, 5vw, 3.5rem);
+    color: #fff;
+    box-shadow: var(--shadow);
+  }
+  .contribute-box h2 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: normal;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+  .contribute-box h2 em { color: #a8d5b0; font-style: normal }
+  .contribute-box p { color: #bbb; font-size: 1rem; margin-bottom: 2rem; max-width: 520px; margin-left: auto; margin-right: auto }
+  .contribute-principles {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .principle {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    padding: .75rem 1.1rem;
+    font-family: monospace;
+    font-size: .8rem;
+    color: #ccc;
+    letter-spacing: .03em;
+    text-align: left;
+    min-width: 150px;
+  }
+  .principle strong { display: block; color: #a8d5b0; margin-bottom: .2rem; font-size: .85rem }
+  .contribute-cta { display: flex; gap: .75rem; justify-content: center; flex-wrap: wrap }
+  .btn-contribute {
+    background: var(--gold);
+    color: var(--ink);
+    padding: .75em 1.75em;
+    border-radius: var(--radius);
+    font-family: monospace;
+    font-size: .92rem;
+    font-weight: bold;
+    text-decoration: none;
+    letter-spacing: .04em;
+    transition: background .2s, transform .15s;
+  }
+  .btn-contribute:hover { background: #b8862e; transform: translateY(-2px) }
+  /* ── CRITERIA ── */
+  .criteria { background: var(--mist) }
+  .criteria-inner { max-width: 860px; margin: 0 auto }
+  .criteria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.25rem;
+  }
+  .criterion {
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 1.4rem 1.5rem;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+    border-left: 3px solid var(--leaf);
+  }
+  .criterion h4 { font-size: .95rem; color: var(--ink); margin-bottom: .4rem }
+  .criterion p  { font-size: .88rem; color: var(--ink-soft) }
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink);
+    color: #666;
+    text-align: center;
+    padding: 2rem;
+    font-family: monospace;
+    font-size: .8rem;
+    letter-spacing: .04em;
+  }
+  footer a { color: #a8d5b0; text-decoration: none }
+  footer a:hover { text-decoration: underline }
+  /* ── ANIMATED PARTICLES ON PREVIEW CARDS ── */
+  .floating-particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: .5;
+    animation: float linear infinite;
+  }
+  @keyframes float {
+    from { transform: translateY(100%) translateX(var(--dx)); opacity: 0 }
+    10%  { opacity: .5 }
+    90%  { opacity: .3 }
+    to   { transform: translateY(-20px) translateX(var(--dx)); opacity: 0 }
+  }
+</style>
+</head>
+<body>
+<!-- ── HEADER ── -->
+<header>
+  <a href="/" class="site-name">treeline.work</a>
+  <nav>
+    <a href="/">Home</a>
+    <a href="/fun" class="active">Fun</a>
+    <a href="mailto:hello@treeline.work">Contact</a>
+  </nav>
+</header>
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-badge">Play · Learn · Contribute</div>
+  <h1>Where work meets<br><em>play</em></h1>
+  <p>Browser-based tools that build real skills. No accounts, no installs, no ads — just you and the craft of doing things well.</p>
+  <div class="hero-cta">
+    <a href="#games" class="btn btn-primary">Explore the games</a>
+    <a href="#contribute" class="btn btn-ghost">Submit your own</a>
+  </div>
+</section>
+<!-- ── GAMES ── -->
+<section id="games" style="background:#fff">
+  <div class="section-label">Games</div>
+  <h2 class="section-title">Two ways to type.</h2>
+  <p class="section-sub">Both games share the same pedagogy — spaced repetition, motor-stage scaffolding, psychoacoustic feedback — but offer very different feels.</p>
+  <div class="games-grid">
+    <!-- TYPE LIBRARY -->
+    <div class="game-card card-library">
+      <div class="card-preview">
+        <!-- Animated particle field mimicking the game's dust motes -->
+        <div class="floating-particles" id="lib-particles"></div>
+        <div class="card-preview-overlay">
+          <span class="game-icon">📚</span>
+          <span class="game-title-preview">TYPE LIBRARY</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <span class="card-tag tag-library">Constructive</span>
+        <h3>Catch words. Build your library.</h3>
+        <p>Words drift down from above. Type them to catch each book and shelve it. Twelve levels carry you from individual keys to full sentences and grammar correction. Every level completed seals a new shelf — your library grows as you do.</p>
+        <div class="card-meta">
+          <span class="meta-pill">12 core levels</span>
+          <span class="meta-pill">4 coding tracks</span>
+          <span class="meta-pill">Harmonic audio</span>
+          <span class="meta-pill">No account needed</span>
+        </div>
+        <div class="card-actions">
+          <a href="type-library.html" class="btn-play">▶ Play now</a>
+        </div>
+      </div>
+    </div>
+    <!-- TYPE COMMAND -->
+    <div class="game-card card-galaga">
+      <div class="card-preview">
+        <div class="floating-particles" id="gal-particles"></div>
+        <div class="card-preview-overlay">
+          <span class="game-icon">🚀</span>
+          <span class="game-title-preview">TYPE COMMAND</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <span class="card-tag tag-galaga" style="background:#e8eaf6;color:#3949ab">Combat</span>
+        <h3>Type to fire. Words are your weapons.</h3>
+        <p>Enemies descend in formation. Type their names to destroy them before they reach your pilot. The same levels and vocabulary as Type Library — but with urgency, combos, and a shield to protect. For learners who like pressure.</p>
+        <div class="card-meta">
+          <span class="meta-pill">12 core levels</span>
+          <span class="meta-pill">Combo system</span>
+          <span class="meta-pill">Pilot profiles</span>
+          <span class="meta-pill">No account needed</span>
+        </div>
+        <div class="card-actions">
+          <a href="typing-galaga.html" class="btn-play" style="background:#3949ab">▶ Play now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ── PHILOSOPHY ── -->
+<section class="philosophy">
+  <div class="philosophy-inner">
+    <h2>Built on real learning science.</h2>
+    <div class="philo-item">
+      <h4>Spaced repetition</h4>
+      <p>Words you miss come back sooner. Words you know fade to the background. Your practice time goes exactly where it's needed.</p>
+    </div>
+    <div class="philo-item">
+      <h4>Motor stage awareness</h4>
+      <p>The Fitts & Posner model tracks whether you're in the cognitive, associative, or autonomous stage — and adjusts difficulty accordingly.</p>
+    </div>
+    <div class="philo-item">
+      <h4>Psychoacoustic feedback</h4>
+      <p>Every keystroke plays a note proportional to its position in the word. Mistakes fall gently away. Progress rings up a harmonic scale. Your fingers learn to listen.</p>
+    </div>
+    <div class="philo-item">
+      <h4>No punishment, only progress</h4>
+      <p>Missed words drift off — they don't end your run. Errors give you a directional cue, not a harsh alarm. The game stays constructive even when you struggle.</p>
+    </div>
+  </div>
+</section>
+<!-- ── CONTRIBUTE ── -->
+<section class="contribute" id="contribute">
+  <div class="contribute-inner">
+    <div class="contribute-box">
+      <h2>This shelf has room<br>for <em>your game</em>.</h2>
+      <p>Type Library and Type Command are a beginning. If you've built a browser-based tool that teaches, trains, or simply delights — we want to host it here. No framework required. Just a single HTML file and a good idea.</p>
+      <div class="contribute-principles">
+        <div class="principle">
+          <strong>Self-contained</strong>
+          One HTML file. No server, no login, no dependency on external services.
+        </div>
+        <div class="principle">
+          <strong>Teaches something real</strong>
+          A skill, a concept, a way of thinking. Games that leave you better than they found you.
+        </div>
+        <div class="principle">
+          <strong>Open to all</strong>
+          Runs in any modern browser. No installation, no account, no paywall.
+        </div>
+        <div class="principle">
+          <strong>Your attribution</strong>
+          Your name, your link, your creation — credited on the page and in the code.
+        </div>
+      </div>
+      <div class="contribute-cta">
+        <a href="mailto:hello@treeline.work?subject=Fun%20tab%20contribution&body=Hi%2C%20I%27d%20like%20to%20submit%20a%20game%20for%20the%20fun%20tab." class="btn-contribute">✉ Submit a game</a>
+        <a href="#criteria" class="btn btn-ghost" style="color:#a8d5b0;border-color:rgba(168,213,176,.4)">See what we look for</a>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ── CRITERIA ── -->
+<section class="criteria" id="criteria">
+  <div class="criteria-inner">
+    <div class="section-label">Submission criteria</div>
+    <h2 class="section-title">What makes a good addition?</h2>
+    <p class="section-sub" style="margin-bottom:2rem">We're looking for games and tools that respect the player's time and intelligence. These are the questions we ask.</p>
+    <div class="criteria-grid">
+      <div class="criterion">
+        <h4>Does it run locally?</h4>
+        <p>Open the HTML file — does it work immediately, with no internet required after the first load?</p>
+      </div>
+      <div class="criterion">
+        <h4>Does it teach or train?</h4>
+        <p>Typing, logic, memory, music, language, math, code — anything where practice builds genuine capability.</p>
+      </div>
+      <div class="criterion">
+        <h4>Is it accessible?</h4>
+        <p>Playable by beginners. Clear enough that no manual is needed. Forgiving of mistakes.</p>
+      </div>
+      <div class="criterion">
+        <h4>Is it respectful?</h4>
+        <p>No dark patterns, no artificial difficulty spikes, no shame mechanics. Reward progress, not punishment.</p>
+      </div>
+      <div class="criterion">
+        <h4>Is the code clean?</h4>
+        <p>We'll read it. Readable, commented, no obfuscation. Others may build on it.</p>
+      </div>
+      <div class="criterion">
+        <h4>Is it original?</h4>
+        <p>Your own work, or a clearly licensed adaptation. Not a port of a commercial game.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ── FOOTER ── -->
+<footer>
+  <p>
+    <a href="/">treeline.work</a> &nbsp;·&nbsp;
+    Type Library and Type Command were built with Claude &nbsp;·&nbsp;
+    <a href="mailto:hello@treeline.work">hello@treeline.work</a>
+  </p>
+</footer>
+<script>
+// Animated particle previews on each game card
+function spawnParticles(containerId, colors, count){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  for(let i=0; i<count; i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 1.5 + Math.random()*3;
+    const x = Math.random()*100;
+    const dur = 4 + Math.random()*6;
+    const delay = -Math.random()*dur;
+    const dx = (Math.random()-.5)*40+'px';
+    const color = colors[Math.floor(Math.random()*colors.length)];
+    p.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${x}%; bottom:0;
+      background:${color};
+      --dx:${dx};
+      animation-duration:${dur}s;
+      animation-delay:${delay}s;
+    `;
+    el.appendChild(p);
+  }
+}
+spawnParticles('lib-particles', ['#ddb866','#88aa66','#aa8855','#cc9966','#ffffff55'], 28);
+spawnParticles('gal-particles', ['#4488ff','#44ffcc','#ff4488','#ffcc44','#ffffff55'], 28);
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if(target){ e.preventDefault(); target.scrollIntoView({behavior:'smooth', block:'start'}) }
+  });
+});
+</script>
+</body>
+</html>
