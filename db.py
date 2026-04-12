@@ -127,7 +127,7 @@ def seed_db():
         {
             "username": "mara_luna",
             "email": "mara@example.com",
-            "display_name": "Mara Luna",
+            "display_name": "[Demo] Mara Luna",
             "bio": "Muralist and printmaker. Born in the Mission, paint everywhere. Large-scale work about migration, memory, and the ocean.",
             "role": "artist",
             "art_types": json.dumps(["murals", "printmaking", "installation"]),
@@ -137,7 +137,7 @@ def seed_db():
         {
             "username": "devonte_k",
             "email": "devonte@example.com",
-            "display_name": "Devonte K.",
+            "display_name": "[Demo] Devonte K.",
             "bio": "Jazz keys + electronic producer. I play every Tuesday somewhere in Oakland. Let's make it your spot.",
             "role": "artist",
             "art_types": json.dumps(["live music", "electronic", "jazz"]),
@@ -148,7 +148,7 @@ def seed_db():
         {
             "username": "sage_house",
             "email": "sage@example.com",
-            "display_name": "Sage",
+            "display_name": "[Demo] Sage",
             "bio": "I have a backyard in Bernal with a covered patio, string lights, and room for ~40 people. Love hosting live music and open mics.",
             "role": "host",
             "neighborhood": "Bernal Heights",
@@ -158,7 +158,7 @@ def seed_db():
         {
             "username": "tommy_chen",
             "email": "tommy@example.com",
-            "display_name": "Tommy Chen",
+            "display_name": "[Demo] Tommy Chen",
             "bio": "Photographer and zine maker. Document the Bay's underground. Run a small distro out of my garage.",
             "role": "both",
             "art_types": json.dumps(["photography", "zines", "printmaking"]),
@@ -170,7 +170,7 @@ def seed_db():
         {
             "username": "rio_waters",
             "email": "rio@example.com",
-            "display_name": "Rio Waters",
+            "display_name": "[Demo] Rio Waters",
             "bio": "Poet and spoken word. Performing since 16. Words about Black joy, queerness, and this city changing under our feet.",
             "role": "artist",
             "art_types": json.dumps(["spoken word", "poetry", "performance"]),
@@ -180,7 +180,7 @@ def seed_db():
         {
             "username": "nina_jade",
             "email": "nina@example.com",
-            "display_name": "Nina Jade",
+            "display_name": "[Demo] Nina Jade",
             "bio": "Ceramicist and community organizer. I teach free wheel-throwing workshops in my studio on weekends.",
             "role": "both",
             "art_types": json.dumps(["ceramics", "sculpture", "workshops"]),
@@ -192,8 +192,8 @@ def seed_db():
         {
             "username": "eli_park",
             "email": "eli@example.com",
-            "display_name": "Eli Park",
-            "bio": "Living room concert host. I book 2-3 shows a month — acoustic, folk, experimental. BYOB, potluck style.",
+            "display_name": "[Demo] Eli Park",
+            "bio": "Living room concert host. I book 2-3 shows a month â acoustic, folk, experimental. BYOB, potluck style.",
             "role": "host",
             "neighborhood": "Inner Richmond",
             "space_description": "Large Victorian living room. Grand piano available. Seats ~30 on floor cushions.",
@@ -202,7 +202,7 @@ def seed_db():
         {
             "username": "juniper_ray",
             "email": "juniper@example.com",
-            "display_name": "Juniper Ray",
+            "display_name": "[Demo] Juniper Ray",
             "bio": "Multi-instrumentalist (guitar/banjo/fiddle). Play old-time, bluegrass, and weird folk. Always looking for porch jams.",
             "role": "artist",
             "art_types": json.dumps(["live music", "folk", "bluegrass"]),
@@ -213,8 +213,8 @@ def seed_db():
         {
             "username": "casa_del_sol",
             "email": "casa@example.com",
-            "display_name": "Casa del Sol",
-            "bio": "Artist collective house in the Mission. We host monthly art nights — painting, music, food, community. Everyone welcome.",
+            "display_name": "[Demo] Casa del Sol",
+            "bio": "Artist collective house in the Mission. We host monthly art nights â painting, music, food, community. Everyone welcome.",
             "role": "host",
             "neighborhood": "Mission District",
             "space_description": "3-story Victorian with large common room, rooftop, and basement. Full PA + projector.",
@@ -224,7 +224,7 @@ def seed_db():
         {
             "username": "aya_sato",
             "email": "aya@example.com",
-            "display_name": "Aya Sato",
+            "display_name": "[Demo] Aya Sato",
             "bio": "Dancer and movement artist. Butoh, contemporary, improvisation. Looking for spaces with open floors and low ceilings.",
             "role": "artist",
             "art_types": json.dumps(["dance", "performance", "movement"]),
@@ -252,8 +252,8 @@ def seed_db():
     base_date = datetime(2026, 3, 25)
     events = [
         {
-            "title": "Backyard Sessions vol. 12",
-            "description": "Monthly live music in Bernal. This month: Devonte K. (keys/electronic) + Juniper Ray (folk). Potluck — bring a dish or a drink.",
+            "title": "[Demo] Backyard Sessions vol. 12",
+            "description": "Monthly live music in Bernal. This month: Devonte K. (keys/electronic) + Juniper Ray (folk). Potluck â bring a dish or a drink.",
             "event_type": "house_show",
             "host_id": 3,  # Sage
             "artist_ids": json.dumps([2, 8]),
@@ -267,7 +267,7 @@ def seed_db():
             "tags": json.dumps(["live music", "potluck", "outdoor"]),
         },
         {
-            "title": "Garage Zine Fair",
+            "title": "[Demo] Garage Zine Fair",
             "description": "Small zine fair in the Sunset. Bring your zines, trades welcome. Screen printing demo by Tommy Chen.",
             "event_type": "other",
             "host_id": 4,  # Tommy
@@ -282,7 +282,7 @@ def seed_db():
             "tags": json.dumps(["zines", "printmaking", "DIY"]),
         },
         {
-            "title": "Living Room Concert: Acoustic Night",
+            "title": "[Demo] Living Room Concert: Acoustic Night",
             "description": "Intimate acoustic sets in a Victorian living room. Three performers, floor seating, candlelight. BYOB.",
             "event_type": "house_show",
             "host_id": 7,  # Eli
@@ -297,7 +297,7 @@ def seed_db():
             "tags": json.dumps(["acoustic", "intimate", "BYOB"]),
         },
         {
-            "title": "Free Ceramics Workshop",
+            "title": "[Demo] Free Ceramics Workshop",
             "description": "Learn wheel-throwing basics. All materials provided. Beginners very welcome. Small group, hands-on.",
             "event_type": "workshop",
             "host_id": 6,  # Nina
@@ -312,7 +312,7 @@ def seed_db():
             "tags": json.dumps(["ceramics", "workshop", "free", "beginners"]),
         },
         {
-            "title": "Casa del Sol: First Friday",
+            "title": "[Demo] Casa del Sol: First Friday",
             "description": "Monthly art night at Casa del Sol. Live painting, DJs, open mic, and free food. All ages, all welcome.",
             "event_type": "meetup",
             "host_id": 9,  # Casa del Sol
@@ -327,7 +327,7 @@ def seed_db():
             "tags": json.dumps(["art night", "open mic", "DJs", "all ages"]),
         },
         {
-            "title": "Movement Improvisation Jam",
+            "title": "[Demo] Movement Improvisation Jam",
             "description": "Open floor for movers, dancers, and curious bodies. No experience needed. Bring socks or bare feet.",
             "event_type": "jam_session",
             "host_id": 9,  # Casa del Sol
@@ -335,14 +335,14 @@ def seed_db():
             "date": (base_date + timedelta(days=12)).strftime("%Y-%m-%d"),
             "time_start": "4:00 PM",
             "time_end": "6:00 PM",
-            "location_name": "Casa del Sol — Basement",
+            "location_name": "Casa del Sol â Basement",
             "neighborhood": "Mission District",
             "capacity": 20,
             "is_free": 1,
             "tags": json.dumps(["dance", "movement", "improvisation"]),
         },
         {
-            "title": "Spoken Word & Soup",
+            "title": "[Demo] Spoken Word & Soup",
             "description": "Rio Waters hosts a night of poetry and hot soup. Open mic after featured readers. Bring a poem or just listen.",
             "event_type": "house_show",
             "host_id": 7,  # Eli
@@ -357,7 +357,7 @@ def seed_db():
             "tags": json.dumps(["poetry", "spoken word", "open mic", "soup"]),
         },
         {
-            "title": "Porch Jam: Old-Time & Bluegrass",
+            "title": "[Demo] Porch Jam: Old-Time & Bluegrass",
             "description": "Bring your instrument (or just your ears) to a Temescal porch for some old-time tunes. All levels welcome.",
             "event_type": "jam_session",
             "host_id": 8,  # Juniper
@@ -373,7 +373,7 @@ def seed_db():
             "tags": json.dumps(["bluegrass", "jam", "porch", "all levels"]),
         },
         {
-            "title": "Mara Luna: New Mural Unveiling",
+            "title": "[Demo] Mara Luna: New Mural Unveiling",
             "description": "Come see the new mural on Balmy Alley. Mara talks about the piece, the process, and the stories behind it.",
             "event_type": "gallery",
             "host_id": 1,  # Mara
@@ -388,7 +388,7 @@ def seed_db():
             "tags": json.dumps(["murals", "public art", "outdoor"]),
         },
         {
-            "title": "Skill Swap Saturday",
+            "title": "[Demo] Skill Swap Saturday",
             "description": "Trade skills with your neighbors. Teach something, learn something. Past swaps: sourdough, screen printing, guitar basics, bike repair.",
             "event_type": "skill_swap",
             "host_id": 6,  # Nina
@@ -421,35 +421,35 @@ def seed_db():
     posts = [
         {
             "user_id": 5,
-            "title": "Looking for a venue for a poetry night (15-20 people)",
+            "title": "[Demo] Looking for a venue for a poetry night (15-20 people)",
             "body": "I want to host a small poetry reading in April. Need a cozy space in SF, preferably the Mission or Fillmore. Can bring my own PA. Willing to split door if there is one.",
             "post_type": "looking_for_venue",
             "tags": json.dumps(["poetry", "small venue", "Mission", "Fillmore"]),
         },
         {
             "user_id": 3,
-            "title": "Backyard available weekends in April",
+            "title": "[Demo] Backyard available weekends in April",
             "body": "My Bernal Heights backyard is open for events most weekends in April. Covered patio, string lights, room for 40. Reach out if you want to do something.",
             "post_type": "looking_for_artist",
             "tags": json.dumps(["venue available", "Bernal Heights", "outdoor"]),
         },
         {
             "user_id": 10,
-            "title": "Dancer looking for musicians to improvise with",
+            "title": "[Demo] Dancer looking for musicians to improvise with",
             "body": "I do butoh and contemporary movement improvisation. Looking for musicians (any genre) who want to experiment with live music + dance. No plan, just play.",
             "post_type": "collab",
             "tags": json.dumps(["dance", "music", "improvisation", "collaboration"]),
         },
         {
             "user_id": 4,
-            "title": "Free screen printing intro — trade for photos?",
+            "title": "[Demo] Free screen printing intro â trade for photos?",
             "body": "I'll teach you screen printing basics in exchange for headshots or event photos. My garage in the Sunset. Weekends work best.",
             "post_type": "skill_swap",
             "tags": json.dumps(["screen printing", "photography", "trade", "Sunset"]),
         },
         {
             "user_id": 8,
-            "title": "Banjo for loan — anyone need one?",
+            "title": "[Demo] Banjo for loan â anyone need one?",
             "body": "I have an extra open-back banjo that's just sitting around. Happy to loan it to someone who wants to learn. Temescal/Oakland pickup.",
             "post_type": "gear",
             "tags": json.dumps(["banjo", "instrument", "loan", "Oakland"]),
