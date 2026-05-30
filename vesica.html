@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>vesica</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f3ecda;
+    --paper-shade: #e9dfc4;
+    --ink: #3c3530;
+    --ink-soft: #8b7d6b;
+    --line: #a89878;
+    --black: #1a1814;
+    --white: #f5ecd4;
+    --rust: #a65f3d;
+    --rust-soft: #c98869;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at top, var(--paper) 0%, var(--paper-shade) 100%);
+    font-family: 'Spectral', Georgia, serif;
+    color: var(--ink);
+    padding: 1.5rem 1rem 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .container { width: 100%; max-width: 640px; display: flex; flex-direction: column; align-items: center; }
+  header { margin-bottom: 1rem; text-align: center; }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-weight: 500;
+    font-size: 2.6rem; letter-spacing: 0.08em;
+    margin: 0; line-height: 1;
+  }
+  .subtitle {
+    font-size: 0.72rem; color: var(--ink-soft); font-style: italic;
+    letter-spacing: 0.18em; margin-top: 0.4rem; text-transform: lowercase;
+  }
+  .picker { text-align: center; max-width: 420px; width: 100%; margin-top: 1rem; }
+  .picker p { font-style: italic; color: var(--ink-soft); margin: 0 0 1rem 0; line-height: 1.5; }
+  .picker-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  button.choice {
+    padding: 0.9rem 1.6rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 1.15rem;
+    background: var(--ink); color: var(--paper);
+    border: none; border-radius: 2px;
+    cursor: pointer; letter-spacing: 0.08em;
+    transition: all 0.2s;
+  }
+  button.choice:hover { background: var(--rust); transform: translateY(-1px); }
+  button.choice:disabled { opacity: 0.5; cursor: wait; }
+  .join-row { display: flex; gap: 0.5rem; justify-content: center; align-items: stretch; max-width: 360px; margin: 0 auto; }
+  .code-input {
+    flex: 1; padding: 0.7rem; text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem; letter-spacing: 0.15em;
+    background: rgba(255,255,255,0.4); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 2px;
+    text-transform: uppercase; outline: none;
+  }
+  .code-input:focus { border-color: var(--rust); }
+  .status { text-align: center; margin: 0.5rem 0 1rem; }
+  .room-bar {
+    display: flex; justify-content: center; align-items: center;
+    gap: 1rem; margin-bottom: 0.7rem; flex-wrap: wrap;
+  }
+  .room-code {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 1.1rem;
+    letter-spacing: 0.2em; color: var(--ink);
+  }
+  .room-code .label { color: var(--ink-soft); font-size: 0.75rem; letter-spacing: 0.1em; margin-right: 0.4rem; }
+  .room-code .code { font-weight: 600; letter-spacing: 0.3em; }
+  .turn-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 1.4rem;
+  }
+  .turn-label.black-turn { color: var(--ink); }
+  .turn-label.white-turn { color: var(--rust); }
+  .turn-label.rust-turn { color: var(--rust); }
+  .captures {
+    font-size: 0.78rem; color: var(--ink-soft);
+    margin-top: 0.3rem; letter-spacing: 0.05em;
+  }
+  .sync-dot {
+    display: inline-block; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--line);
+    vertical-align: middle; margin-right: 0.4rem;
+    transition: background 0.3s;
+  }
+  .sync-dot.live { background: #6b8e5a; }
+  .sync-dot.error { background: var(--rust); }
+  .sync-text { font-size: 0.7rem; color: var(--ink-soft); font-style: italic; letter-spacing: 0.05em; }
+  .winner {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 1.7rem;
+    color: var(--rust);
+  }
+  .board-container { width: 100%; max-width: 540px; margin-bottom: 0.5rem; }
+  .board-container svg { width: 100%; height: auto; display: block; }
+  .controls {
+    display: flex; gap: 1.5rem; justify-content: center;
+    margin-bottom: 1.5rem; flex-wrap: wrap;
+  }
+  button.text {
+    background: transparent; border: none;
+    border-bottom: 1px solid var(--ink-soft);
+    padding: 0.2rem 0.1rem;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 0.95rem;
+    color: var(--ink); cursor: pointer;
+    letter-spacing: 0.05em; transition: all 0.2s;
+    margin: 0 0.5rem;
+  }
+  button.text:hover { color: var(--rust); border-bottom-color: var(--rust); }
+  .notes-section { width: 100%; max-width: 540px; margin-top: 1rem; }
+  .notes-section h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-weight: 500; font-size: 1.3rem;
+    margin: 0 0 0.8rem 0; letter-spacing: 0.05em; text-align: center;
+  }
+  .note {
+    padding: 0.6rem 0.8rem; margin-bottom: 0.4rem;
+    border-left: 2px solid var(--ink);
+    background: rgba(255,255,255,0.25);
+    font-size: 0.9rem; line-height: 1.5;
+  }
+  .note.white-author { border-left-color: var(--rust-soft); }
+  .note.rust-author { border-left-color: var(--rust); }
+  .note.observer-author { border-left-color: var(--line); }
+  .note-meta {
+    font-size: 0.7rem; color: var(--ink-soft);
+    font-style: italic; margin-bottom: 0.15rem; letter-spacing: 0.05em;
+  }
+  .empty-notes {
+    font-style: italic; color: var(--ink-soft);
+    font-size: 0.85rem; text-align: center; padding: 0.5rem 0;
+  }
+  .note-input {
+    width: 100%; padding: 0.7rem;
+    font-family: 'Spectral', Georgia, serif; font-size: 0.9rem;
+    border: 1px solid var(--line); border-radius: 2px;
+    background: rgba(255,255,255,0.4); color: var(--ink);
+    resize: vertical; outline: none; font-style: italic;
+    box-sizing: border-box;
+  }
+  .note-input:focus { border-color: var(--rust); }
+  .add-note-row { display: flex; flex-direction: column; gap: 0.5rem; }
+  .author-toggle { display: flex; gap: 0.4rem; justify-content: center; align-items: center; font-size: 0.8rem; color: var(--ink-soft); font-style: italic; flex-wrap: wrap; }
+  .author-btn {
+    padding: 0.3rem 0.7rem;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 0.85rem;
+    color: var(--ink-soft); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .author-btn.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .author-btn.active.white-active { background: var(--rust-soft); border-color: var(--rust-soft); color: var(--paper); }
+  .author-btn.active.rust-active { background: var(--rust); border-color: var(--rust); color: var(--paper); }
+  .error-banner {
+    background: rgba(166, 95, 61, 0.12);
+    border-left: 3px solid var(--rust);
+    padding: 0.6rem 0.9rem;
+    font-style: italic; font-size: 0.9rem;
+    color: var(--ink); margin-bottom: 1rem;
+    max-width: 540px; width: 100%;
+  }
+  footer {
+    margin-top: 2.5rem; font-size: 0.7rem;
+    color: var(--ink-soft); font-style: italic;
+    text-align: center; letter-spacing: 0.1em;
+    max-width: 540px; line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+<div class="container" id="app"></div>
+<script>
+'use strict';
+
+// ─── Constants ───
+const SIZE = 6;
+const HEX_SIZE = 22;
+const STONE_RADIUS = 10;
+const DOT_RADIUS = 2;
+const POLL_INTERVAL_MS = 3000;
+
+const COLOR_HEX = { black: '#1a1814', white: '#f5ecd4', rust:  '#a65f3d' };
+const COLOR_STROKE = { black: '#000000', white: '#a89878', rust:  '#5d3520' };
+const PAPER = { ink: '#3c3530', inkSoft: '#8b7d6b', line: '#a89878', rust: '#a65f3d' };
+const PLAYER_SETS = { 2: ['black', 'white'], 3: ['black', 'white', 'rust'] };
+const DIRS = [[1,0],[-1,0],[0,1],[0,-1],[1,-1],[-1,1]];
+const AXES = [[[1,0],[-1,0]],[[0,1],[0,-1]],[[1,-1],[-1,1]]];
+
+function generatePositions(n) {
+  const positions = [];
+  for (let q = -(n-1); q <= n-1; q++) {
+    for (let r = -(n-1); r <= n-1; r++) {
+      const s = -q - r;
+      if (Math.abs(s) <= n-1) positions.push({q, r});
+    }
+  }
+  return positions;
+}
+const POSITIONS = generatePositions(SIZE);
+function axialToScreen(q, r) { return { x: HEX_SIZE * Math.sqrt(3) * (q + r/2), y: HEX_SIZE * 1.5 * r }; }
+function keyOf(q, r) { return q + ',' + r; }
+
+function initialState(playerCount) {
+  const players = PLAYER_SETS[playerCount];
+  const capturedBy = {};
+  for (const p of players) capturedBy[p] = 0;
+  return {
+    playerCount, players,
+    board: {}, turnIndex: 0,
+    capturedBy, winner: null,
+    lastMove: null, moveCount: 0,
+    notes: [], startedAt: new Date().toISOString(),
+  };
+}
+
+// ─── Game rules ───
+function checkCaptures(board, placed, color, players) {
+  const captured = [];
+  for (const opp of players) {
+    if (opp === color) continue;
+    for (const [dq, dr] of DIRS) {
+      const k1 = keyOf(placed.q + dq, placed.r + dr);
+      const k2 = keyOf(placed.q + 2*dq, placed.r + 2*dr);
+      const k3 = keyOf(placed.q + 3*dq, placed.r + 3*dr);
+      if (board[k1] === opp && board[k2] === opp && board[k3] === color) {
+        captured.push({q: placed.q + dq, r: placed.r + dr});
+        captured.push({q: placed.q + 2*dq, r: placed.r + 2*dr});
+      }
+    }
+  }
+  return captured;
+}
+
+function checkWin(board, placed, color) {
+  for (const [d1, d2] of AXES) {
+    let count = 1;
+    let q = placed.q + d1[0], r = placed.r + d1[1];
+    while (board[keyOf(q, r)] === color) { count++; q += d1[0]; r += d1[1]; }
+    q = placed.q + d2[0]; r = placed.r + d2[1];
+    while (board[keyOf(q, r)] === color) { count++; q += d2[0]; r += d2[1]; }
+    if (count >= 5) return true;
+  }
+  return false;
+}
+
+// ─── App state ───
+let state = null;
+let roomCode = null;
+let noteAuthor = 'observer';
+let pollTimer = null;
+let putInFlight = false;
+let lastError = null;
+let syncStatus = 'idle'; // 'idle' | 'live' | 'error'
+let connecting = false;
+let pendingNoteText = '';
+
+// ─── URL helpers ───
+function getRoomFromUrl() {
+  const params = new URLSearchParams(location.search);
+  const r = (params.get('room') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  return r || null;
+}
+function setRoomInUrl(code) {
+  const url = new URL(location.href);
+  url.searchParams.set('room', code);
+  history.replaceState(null, '', url.toString());
+}
+
+// ─── API ───
+async function apiCreateGame(initial) {
+  const res = await fetch('/api/vesica/games', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ state: initial }),
+  });
+  if (!res.ok) throw new Error('Could not create room (' + res.status + ')');
+  return await res.json();
+}
+
+async function apiGetGame(code) {
+  const res = await fetch('/api/vesica/games/' + encodeURIComponent(code));
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('Could not fetch room (' + res.status + ')');
+  return await res.json();
+}
+
+async function apiPutGame(code, st) {
+  const res = await fetch('/api/vesica/games/' + encodeURIComponent(code), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ state: st }),
+  });
+  if (!res.ok) throw new Error('Could not save move (' + res.status + ')');
+  return await res.json();
+}
+
+// ─── Sync ───
+function setSync(status, errMsg) {
+  syncStatus = status;
+  if (status === 'error') lastError = errMsg || 'sync error';
+  else lastError = null;
+  // light re-render of just the sync bar would be cleaner, but full render is fine here
+  render();
+}
+
+async function pushState() {
+  if (!roomCode || !state) return;
+  putInFlight = true;
+  try {
+    const resp = await apiPutGame(roomCode, state);
+    putInFlight = false;
+    setSync('live');
+    return resp;
+  } catch (e) {
+    putInFlight = false;
+    setSync('error', e.message);
+  }
+}
+
+async function pullState() {
+  if (!roomCode || putInFlight) return;
+  try {
+    const resp = await apiGetGame(roomCode);
+    if (!resp) {
+      setSync('error', 'room ' + roomCode + ' not found');
+      stopPolling();
+      return;
+    }
+    const remote = resp.state;
+    // Only update if server has more moves than we do (or notes differ)
+    const localMoves = (state && state.moveCount) || 0;
+    const remoteMoves = (remote && remote.moveCount) || 0;
+    const localNotes = (state && state.notes && state.notes.length) || 0;
+    const remoteNotes = (remote && remote.notes && remote.notes.length) || 0;
+    if (remoteMoves > localMoves || remoteNotes > localNotes || !state) {
+      state = remote;
+      setSync('live');
+      return;
+    }
+    if (syncStatus !== 'live') setSync('live');
+  } catch (e) {
+    setSync('error', e.message);
+  }
+}
+
+function startPolling() {
+  if (pollTimer) return;
+  pollTimer = setInterval(pullState, POLL_INTERVAL_MS);
+}
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+// ─── Actions ───
+async function createRoom(playerCount) {
+  if (connecting) return;
+  connecting = true;
+  render();
+  try {
+    const initial = initialState(playerCount);
+    const resp = await apiCreateGame(initial);
+    roomCode = resp.code;
+    state = initial;
+    setRoomInUrl(roomCode);
+    connecting = false;
+    setSync('live');
+    startPolling();
+  } catch (e) {
+    connecting = false;
+    setSync('error', e.message);
+  }
+}
+
+async function joinRoom(code) {
+  if (!code) return;
+  code = code.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!code) return;
+  connecting = true;
+  render();
+  try {
+    const resp = await apiGetGame(code);
+    if (!resp) {
+      connecting = false;
+      setSync('error', 'room ' + code + ' not found');
+      return;
+    }
+    roomCode = code;
+    state = resp.state;
+    setRoomInUrl(code);
+    connecting = false;
+    setSync('live');
+    startPolling();
+  } catch (e) {
+    connecting = false;
+    setSync('error', e.message);
+  }
+}
+
+function placeStone(q, r) {
+  if (!state || state.winner) return;
+  if (state.board[keyOf(q, r)]) return;
+  const color = state.players[state.turnIndex];
+  const newBoard = Object.assign({}, state.board);
+  newBoard[keyOf(q, r)] = color;
+  const placed = { q, r };
+  const captured = checkCaptures(newBoard, placed, color, state.players);
+  for (const c of captured) delete newBoard[keyOf(c.q, c.r)];
+  const pairCount = captured.length / 2;
+  const newCaptured = Object.assign({}, state.capturedBy);
+  newCaptured[color] = (newCaptured[color] || 0) + pairCount;
+  let winner = null;
+  if (checkWin(newBoard, placed, color)) winner = color;
+  else {
+    for (const p of state.players) {
+      if (newCaptured[p] >= 5) { winner = p; break; }
+    }
+  }
+  state = Object.assign({}, state, {
+    board: newBoard,
+    turnIndex: (state.turnIndex + 1) % state.playerCount,
+    capturedBy: newCaptured,
+    winner,
+    lastMove: placed,
+    moveCount: state.moveCount + 1,
+  });
+  render();
+  pushState();
+}
+
+function newGame() {
+  if (!state) return;
+  if (state.moveCount > 0 && !confirm('Start a new game in this room? Current board will be lost for everyone.')) return;
+  const pc = state.playerCount;
+  state = initialState(pc);
+  render();
+  pushState();
+}
+
+function leaveRoom() {
+  stopPolling();
+  roomCode = null; state = null;
+  const url = new URL(location.href);
+  url.searchParams.delete('room');
+  history.replaceState(null, '', url.toString());
+  setSync('idle');
+}
+
+function addNote(text) {
+  if (!state || !text.trim()) return;
+  const note = {
+    text: text.trim(), author: noteAuthor,
+    moveCount: state.moveCount,
+    timestamp: new Date().toISOString(),
+  };
+  state = Object.assign({}, state, { notes: (state.notes || []).concat([note]) });
+  render();
+  pushState();
+}
+
+function setAuthor(a) { noteAuthor = a; render(); }
+
+function copyRoomLink() {
+  const url = location.href;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(
+      () => { flashCopyMsg('link copied'); },
+      () => { flashCopyMsg(url); }
+    );
+  } else {
+    flashCopyMsg(url);
+  }
+}
+function flashCopyMsg(msg) {
+  const el = document.getElementById('copy-msg');
+  if (el) { el.textContent = msg; setTimeout(() => { if (el) el.textContent = ''; }, 2400); }
+}
+
+// ─── Render ───
+const app = document.getElementById('app');
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function buildBoardSvg() {
+  const maxExtent = (SIZE - 1) * HEX_SIZE * Math.sqrt(3) + 30;
+  const viewBox = `${-maxExtent} ${-maxExtent} ${2*maxExtent} ${2*maxExtent}`;
+  let svg = `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">`;
+  const seen = new Set();
+  for (const {q, r} of POSITIONS) {
+    for (const [dq, dr] of DIRS) {
+      const q2 = q + dq, r2 = r + dr;
+      const s2 = -q2 - r2;
+      if (Math.abs(q2) > SIZE-1 || Math.abs(r2) > SIZE-1 || Math.abs(s2) > SIZE-1) continue;
+      const edgeKey = [keyOf(q,r), keyOf(q2,r2)].sort().join('|');
+      if (seen.has(edgeKey)) continue;
+      seen.add(edgeKey);
+      const p1 = axialToScreen(q, r);
+      const p2 = axialToScreen(q2, r2);
+      svg += `<line x1="${p1.x.toFixed(2)}" y1="${p1.y.toFixed(2)}" x2="${p2.x.toFixed(2)}" y2="${p2.y.toFixed(2)}" stroke="${PAPER.line}" stroke-width="0.5" opacity="0.35" pointer-events="none" />`;
+    }
+  }
+  for (const {q, r} of POSITIONS) {
+    const {x, y} = axialToScreen(q, r);
+    const k = keyOf(q, r);
+    const stone = state.board[k];
+    const isLast = state.lastMove && state.lastMove.q === q && state.lastMove.r === r;
+    const canPlay = !stone && !state.winner;
+    if (!stone) {
+      svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${DOT_RADIUS}" fill="${PAPER.inkSoft}" opacity="0.5" pointer-events="none" />`;
+    } else {
+      svg += `<circle cx="${(x+0.8).toFixed(2)}" cy="${(y+1.2).toFixed(2)}" r="${STONE_RADIUS}" fill="${PAPER.ink}" opacity="0.18" pointer-events="none" />`;
+      svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${STONE_RADIUS}" fill="${COLOR_HEX[stone]}" stroke="${COLOR_STROKE[stone]}" stroke-width="0.5" pointer-events="none" />`;
+      if (isLast) {
+        svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${STONE_RADIUS + 3.5}" fill="none" stroke="${PAPER.rust}" stroke-width="1" opacity="0.8" pointer-events="none" />`;
+      }
+    }
+    svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${(HEX_SIZE * 0.55).toFixed(2)}" fill="transparent" pointer-events="all" style="cursor:${canPlay ? 'pointer' : 'default'}" data-q="${q}" data-r="${r}" class="vertex-tap" />`;
+  }
+  svg += '</svg>';
+  return svg;
+}
+
+function buildLobby() {
+  const busy = connecting ? 'disabled' : '';
+  const err = lastError ? `<div class="error-banner">${escapeHtml(lastError)}</div>` : '';
+  return `
+    <header><h1>vesica</h1><p class="subtitle">triangular pente · play together, anywhere</p></header>
+    ${err}
+    <div class="picker">
+      <p>start a new room, or join one</p>
+      <div class="picker-buttons">
+        <button class="choice" id="pick-2" ${busy}>new 2-player room</button>
+        <button class="choice" id="pick-3" ${busy}>new 3-player room</button>
+      </div>
+      <p>join with a room code</p>
+      <div class="join-row">
+        <input class="code-input" id="join-code" placeholder="ABCDEF" maxlength="6" autocomplete="off">
+        <button class="choice" id="join-btn" ${busy}>join</button>
+      </div>
+    </div>
+    <footer>anonymous rooms · share the link to play · 5 in a row or 5 pair captures wins</footer>
+  `;
+}
+
+function buildGame() {
+  const currentColor = state.players[state.turnIndex];
+  let statusHtml;
+  if (state.winner) {
+    statusHtml = `<div class="winner">${escapeHtml(state.winner)} held the line</div>`;
+  } else {
+    statusHtml = `<div class="turn-label ${currentColor}-turn">${escapeHtml(currentColor)}'s turn</div>`;
+  }
+  const capturesHtml = state.players.map(p => `${p} ${state.capturedBy[p] || 0}`).join(' · ');
+  const notes = state.notes || [];
+  let notesList;
+  if (notes.length === 0) {
+    notesList = '<p class="empty-notes">no observations yet — record what shifts during play</p>';
+  } else {
+    notesList = notes.map(n => {
+      const cls = n.author === 'white' ? 'white-author' : n.author === 'rust' ? 'rust-author' : n.author === 'black' ? '' : 'observer-author';
+      return `
+        <div class="note ${cls}">
+          <div class="note-meta">${escapeHtml(n.author)} · move ${n.moveCount} · ${escapeHtml(new Date(n.timestamp).toLocaleString(undefined, {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'}))}</div>
+          <div>${escapeHtml(n.text)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+  const authorBtnHtml = (val, label) => {
+    const active = noteAuthor === val;
+    const cls = 'author-btn' + (active ? ' active' : '') + (val === 'white' ? ' white-active' : val === 'rust' ? ' rust-active' : '');
+    return `<button class="${cls}" data-author="${val}">${label}</button>`;
+  };
+  const authorChoices = [authorBtnHtml('black', 'Black'), authorBtnHtml('white', 'White')];
+  if (state.playerCount === 3) authorChoices.push(authorBtnHtml('rust', 'Rust'));
+  authorChoices.push(authorBtnHtml('observer', 'Observer'));
+
+  const syncClass = syncStatus === 'live' ? 'live' : (syncStatus === 'error' ? 'error' : '');
+  const syncText = syncStatus === 'live' ? 'synced' : (syncStatus === 'error' ? (lastError || 'sync error') : 'connecting…');
+  const errBanner = (syncStatus === 'error' && lastError) ? `<div class="error-banner">${escapeHtml(lastError)}</div>` : '';
+
+  return `
+    <header><h1>vesica</h1><p class="subtitle">triangular pente · ${state.playerCount} players</p></header>
+    <div class="room-bar">
+      <div class="room-code"><span class="label">room</span><span class="code">${escapeHtml(roomCode)}</span></div>
+      <button class="text" id="copy-link-btn">copy link</button>
+      <span class="sync-text" id="copy-msg"></span>
+    </div>
+    ${errBanner}
+    <div class="status">
+      ${statusHtml}
+      <div class="captures">captures · ${capturesHtml} · move ${state.moveCount}</div>
+      <div class="captures"><span class="sync-dot ${syncClass}"></span><span class="sync-text">${escapeHtml(syncText)}</span></div>
+    </div>
+    <div class="board-container">${buildBoardSvg()}</div>
+    <div class="controls">
+      <button class="text" id="new-game-btn">new game</button>
+      <button class="text" id="leave-btn">leave room</button>
+    </div>
+    <section class="notes-section">
+      <h2>field notes</h2>
+      ${notesList}
+      <div class="add-note-row">
+        <div class="author-toggle">
+          <span>recording as:</span>
+          ${authorChoices.join('')}
+        </div>
+        <textarea id="note-input" class="note-input" rows="3" placeholder="what shifted? what was tempting? what did you notice?"></textarea>
+        <div class="controls" style="margin-bottom:0;"><button class="text" id="add-note-btn">record</button></div>
+      </div>
+    </section>
+    <footer>${state.playerCount === 3 ? 'black → white → rust' : 'black → white'} · 5 in a row or 5 pair captures · state synced every ${POLL_INTERVAL_MS/1000}s</footer>
+  `;
+}
+
+function render() {
+  const noteInput = document.getElementById('note-input');
+  if (noteInput) pendingNoteText = noteInput.value;
+  const joinInput = document.getElementById('join-code');
+  const joinVal = joinInput ? joinInput.value : '';
+  app.innerHTML = (state && roomCode) ? buildGame() : buildLobby();
+  const restoredInput = document.getElementById('note-input');
+  if (restoredInput && pendingNoteText) restoredInput.value = pendingNoteText;
+  const restoredJoin = document.getElementById('join-code');
+  if (restoredJoin && joinVal) restoredJoin.value = joinVal;
+  attachHandlers();
+}
+
+function attachHandlers() {
+  const p2 = document.getElementById('pick-2');
+  if (p2) p2.addEventListener('click', () => createRoom(2));
+  const p3 = document.getElementById('pick-3');
+  if (p3) p3.addEventListener('click', () => createRoom(3));
+  const joinBtn = document.getElementById('join-btn');
+  if (joinBtn) joinBtn.addEventListener('click', () => {
+    const input = document.getElementById('join-code');
+    if (input) joinRoom(input.value);
+  });
+  const joinInput = document.getElementById('join-code');
+  if (joinInput) joinInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') joinRoom(joinInput.value);
+  });
+  const newGameBtn = document.getElementById('new-game-btn');
+  if (newGameBtn) newGameBtn.addEventListener('click', newGame);
+  const leaveBtn = document.getElementById('leave-btn');
+  if (leaveBtn) leaveBtn.addEventListener('click', leaveRoom);
+  const copyBtn = document.getElementById('copy-link-btn');
+  if (copyBtn) copyBtn.addEventListener('click', copyRoomLink);
+  const addNoteBtn = document.getElementById('add-note-btn');
+  if (addNoteBtn) addNoteBtn.addEventListener('click', () => {
+    const input = document.getElementById('note-input');
+    if (input) {
+      const v = input.value;
+      input.value = '';
+      pendingNoteText = '';
+      addNote(v);
+    }
+  });
+  document.querySelectorAll('.author-btn').forEach(el => {
+    el.addEventListener('click', () => setAuthor(el.getAttribute('data-author')));
+  });
+  document.querySelectorAll('.vertex-tap').forEach(el => {
+    el.addEventListener('click', () => {
+      const q = parseInt(el.getAttribute('data-q'), 10);
+      const r = parseInt(el.getAttribute('data-r'), 10);
+      placeStone(q, r);
+    });
+  });
+}
+
+// ─── Init ───
+(function init() {
+  const r = getRoomFromUrl();
+  if (r) {
+    joinRoom(r);
+  } else {
+    render();
+  }
+})();
+</script>
+</body>
+</html>
