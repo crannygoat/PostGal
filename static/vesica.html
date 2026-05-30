@@ -182,9 +182,29 @@
     text-align: center; letter-spacing: 0.1em;
     max-width: 540px; line-height: 1.6;
   }
+  .site-nav {
+    width: 100%; max-width: 540px;
+    display: flex; justify-content: space-between;
+    margin: 0 auto 1.5rem auto;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic; font-size: 0.85rem;
+    letter-spacing: 0.05em;
+  }
+  .site-nav a {
+    color: var(--ink-soft); text-decoration: none;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 1px; transition: all 0.2s;
+  }
+  .site-nav a:hover {
+    color: var(--rust); border-bottom-color: var(--rust);
+  }
 </style>
 </head>
 <body>
+<nav class="site-nav">
+  <a href="https://postgal.art/">← post gal</a>
+  <a href="/typing-galaga">typing galaga →</a>
+</nav>
 <div class="container" id="app"></div>
 <script>
 'use strict';
@@ -220,14 +240,25 @@ function keyOf(q, r) { return q + ',' + r; }
 function initialState(playerCount) {
   const players = PLAYER_SETS[playerCount];
   const capturedBy = {};
-  for (const p of players) capturedBy[p] = 0;
+  const claimedBy = {};
+  for (const p of players) { capturedBy[p] = 0; claimedBy[p] = null; }
   return {
     playerCount, players,
     board: {}, turnIndex: 0,
-    capturedBy, winner: null,
+    capturedBy, claimedBy, winner: null,
     lastMove: null, moveCount: 0,
     notes: [], startedAt: new Date().toISOString(),
   };
+}
+
+// Older state objects (created before claimedBy existed) need an empty claim map
+// patched in so the role logic works without breaking the live game.
+function ensureClaimedBy(s) {
+  if (!s) return s;
+  if (s.claimedBy && typeof s.claimedBy === 'object') return s;
+  const claimedBy = {};
+  for (const p of (s.players || ['black', 'white'])) claimedBy[p] = null;
+  return Object.assign({}, s, { claimedBy });
 }
 
 // ─── Game rules ───
@@ -270,6 +301,35 @@ let lastError = null;
 let syncStatus = 'idle'; // 'idle' | 'live' | 'error'
 let connecting = false;
 let pendingNoteText = '';
+
+// ─── Client identity ───
+// Each browser gets a stable random id, stored locally. The room state's
+// `claimedBy` map records which client owns which color.
+const CLIENT_ID_KEY = 'vesica:clientId';
+function getClientId() {
+  let id = null;
+  try { id = localStorage.getItem(CLIENT_ID_KEY); } catch {}
+  if (!id) {
+    id = 'c_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+    try { localStorage.setItem(CLIENT_ID_KEY, id); } catch {}
+  }
+  return id;
+}
+const MY_CLIENT_ID = getClientId();
+
+function myColor() {
+  if (!state || !state.claimedBy) return null;
+  for (const c of state.players) {
+    if (state.claimedBy[c] === MY_CLIENT_ID) return c;
+  }
+  return null;
+}
+function currentTurnColor() {
+  return state ? state.players[state.turnIndex] : null;
+}
+function isMyTurn() {
+  return !!state && !state.winner && myColor() === currentTurnColor();
+}
 
 // ─── URL helpers ───
 function getRoomFromUrl() {
@@ -343,13 +403,16 @@ async function pullState() {
       stopPolling();
       return;
     }
-    const remote = resp.state;
-    // Only update if server has more moves than we do (or notes differ)
+    const remote = ensureClaimedBy(resp.state);
+    // Refresh if the remote has progressed (more moves, more notes), or if
+    // the role-claim map has shifted (e.g. the other player just joined),
+    // or if we don't have any state yet.
     const localMoves = (state && state.moveCount) || 0;
     const remoteMoves = (remote && remote.moveCount) || 0;
     const localNotes = (state && state.notes && state.notes.length) || 0;
     const remoteNotes = (remote && remote.notes && remote.notes.length) || 0;
-    if (remoteMoves > localMoves || remoteNotes > localNotes || !state) {
+    const claimsChanged = state && JSON.stringify(state.claimedBy) !== JSON.stringify(remote.claimedBy);
+    if (remoteMoves > localMoves || remoteNotes > localNotes || claimsChanged || !state) {
       state = remote;
       setSync('live');
       return;
@@ -375,6 +438,8 @@ async function createRoom(playerCount) {
   render();
   try {
     const initial = initialState(playerCount);
+    // Creator claims the first color (black).
+    initial.claimedBy[initial.players[0]] = MY_CLIENT_ID;
     const resp = await apiCreateGame(initial);
     roomCode = resp.code;
     state = initial;
@@ -402,10 +467,35 @@ async function joinRoom(code) {
       return;
     }
     roomCode = code;
-    state = resp.state;
+    let s = ensureClaimedBy(resp.state);
+
+    // If this client doesn't already own a color in this room, try to claim
+    // the first unclaimed one. Falls through to observer if all are taken.
+    let mine = null;
+    for (const c of s.players) {
+      if (s.claimedBy[c] === MY_CLIENT_ID) { mine = c; break; }
+    }
+    let claimedHere = false;
+    if (!mine) {
+      for (const c of s.players) {
+        if (!s.claimedBy[c]) {
+          const newClaims = Object.assign({}, s.claimedBy, { [c]: MY_CLIENT_ID });
+          s = Object.assign({}, s, { claimedBy: newClaims });
+          mine = c;
+          claimedHere = true;
+          break;
+        }
+      }
+    }
+
+    state = s;
     setRoomInUrl(code);
     connecting = false;
     setSync('live');
+    if (claimedHere) {
+      // Persist the claim so the other player sees it immediately.
+      await pushState();
+    }
     startPolling();
   } catch (e) {
     connecting = false;
@@ -416,6 +506,7 @@ async function joinRoom(code) {
 function placeStone(q, r) {
   if (!state || state.winner) return;
   if (state.board[keyOf(q, r)]) return;
+  if (!isMyTurn()) return;  // only the player whose color is on turn can place
   const color = state.players[state.turnIndex];
   const newBoard = Object.assign({}, state.board);
   newBoard[keyOf(q, r)] = color;
@@ -522,7 +613,7 @@ function buildBoardSvg() {
     const k = keyOf(q, r);
     const stone = state.board[k];
     const isLast = state.lastMove && state.lastMove.q === q && state.lastMove.r === r;
-    const canPlay = !stone && !state.winner;
+    const canPlay = !stone && !state.winner && isMyTurn();
     if (!stone) {
       svg += `<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="${DOT_RADIUS}" fill="${PAPER.inkSoft}" opacity="0.5" pointer-events="none" />`;
     } else {
@@ -562,11 +653,21 @@ function buildLobby() {
 
 function buildGame() {
   const currentColor = state.players[state.turnIndex];
+  const mine = myColor();
+  const unclaimed = state.players.filter(p => !state.claimedBy || !state.claimedBy[p]);
   let statusHtml;
   if (state.winner) {
     statusHtml = `<div class="winner">${escapeHtml(state.winner)} held the line</div>`;
   } else {
     statusHtml = `<div class="turn-label ${currentColor}-turn">${escapeHtml(currentColor)}'s turn</div>`;
+  }
+  let roleLine;
+  if (mine) {
+    const mineTurn = isMyTurn() ? 'your move' : 'waiting on ' + currentColor;
+    roleLine = `you are <strong>${escapeHtml(mine)}</strong> · ${escapeHtml(mineTurn)}`;
+    if (unclaimed.length) roleLine += ` · still open: ${escapeHtml(unclaimed.join(', '))}`;
+  } else {
+    roleLine = 'observing · all seats claimed';
   }
   const capturesHtml = state.players.map(p => `${p} ${state.capturedBy[p] || 0}`).join(' · ');
   const notes = state.notes || [];
@@ -607,6 +708,7 @@ function buildGame() {
     ${errBanner}
     <div class="status">
       ${statusHtml}
+      <div class="captures">${roleLine}</div>
       <div class="captures">captures · ${capturesHtml} · move ${state.moveCount}</div>
       <div class="captures"><span class="sync-dot ${syncClass}"></span><span class="sync-text">${escapeHtml(syncText)}</span></div>
     </div>
