@@ -10,6 +10,7 @@ import json
 import os
 import hashlib
 import secrets
+import sqlite3
 from datetime import datetime
 
 from db import get_db, init_db, seed_db, hash_password, verify_password
@@ -347,6 +348,100 @@ class NeighborhoodsHandler(BaseHandler):
         self.write_json([row["neighborhood"] for row in hoods])
 
 
+# ─── VESICA (turn-based game, anonymous rooms) ───
+
+# Room-code alphabet excludes look-alikes: 0/O, 1/I/L, etc.
+VESICA_CODE_CHARS = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+
+
+def generate_room_code():
+    return "".join(secrets.choice(VESICA_CODE_CHARS) for _ in range(6))
+
+
+class VesicaCreateHandler(BaseHandler):
+    def post(self):
+        try:
+            data = tornado.escape.json_decode(self.request.body) if self.request.body else {}
+        except Exception:
+            data = {}
+        initial_state = data.get("state", {})
+
+        db = get_db()
+        try:
+            for _ in range(10):
+                code = generate_room_code()
+                try:
+                    db.execute(
+                        "INSERT INTO vesica_games (room_code, state) VALUES (?, ?)",
+                        (code, json.dumps(initial_state)),
+                    )
+                    db.commit()
+                    return self.write_json({"code": code, "state": initial_state})
+                except sqlite3.IntegrityError:
+                    continue
+            self.write_json({"error": "Could not generate unique code"}, 500)
+        finally:
+            db.close()
+
+
+class VesicaGameHandler(BaseHandler):
+    def get(self, room_code):
+        db = get_db()
+        row = db.execute(
+            "SELECT state, updated_at FROM vesica_games WHERE room_code = ?",
+            (room_code,),
+        ).fetchone()
+        db.close()
+        if not row:
+            return self.write_json({"error": "Room not found"}, 404)
+        try:
+            state = json.loads(row["state"])
+        except Exception:
+            state = {}
+        self.write_json({"state": state, "updated_at": str(row["updated_at"])})
+
+    def put(self, room_code):
+        try:
+            data = tornado.escape.json_decode(self.request.body)
+        except Exception:
+            return self.write_json({"error": "Invalid JSON"}, 400)
+        new_state = data.get("state")
+        if new_state is None:
+            return self.write_json({"error": "state required"}, 400)
+        db = get_db()
+        try:
+            cur = db.execute(
+                "UPDATE vesica_games SET state = ?, updated_at = CURRENT_TIMESTAMP WHERE room_code = ?",
+                (json.dumps(new_state), room_code),
+            )
+            db.commit()
+            if cur.rowcount == 0:
+                return self.write_json({"error": "Room not found"}, 404)
+            row = db.execute(
+                "SELECT updated_at FROM vesica_games WHERE room_code = ?",
+                (room_code,),
+            ).fetchone()
+            self.write_json({"ok": True, "updated_at": str(row["updated_at"])})
+        finally:
+            db.close()
+
+
+class VesicaPageHandler(tornado.web.RequestHandler):
+    def get(self, code=None):
+        self.set_header("Content-Type", "text/html; charset=utf-8")
+        with open(os.path.join(STATIC_DIR, "vesica.html"), "r") as f:
+            self.write(f.read())
+
+
+# ─── TYPING GALAGA (standalone arcade page) ───
+
+class TypingGalagaPageHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.set_header("Content-Type", "text/html; charset=utf-8")
+        with open(os.path.join(STATIC_DIR, "typing-galaga.html"), "r") as f:
+            self.write(f.read())
+
+
 # ─── STATIC FILES ───
 
 class IndexHandler(tornado.web.RequestHandler):
@@ -367,6 +462,12 @@ def make_app():
         (r"/api/events/(\d+)/rsvp", RsvpHandler),
         (r"/api/posts", PostsHandler),
         (r"/api/neighborhoods", NeighborhoodsHandler),
+        # Vesica (turn-based game with anonymous rooms)
+        (r"/api/vesica/games", VesicaCreateHandler),
+        (r"/api/vesica/games/([A-Z0-9]+)", VesicaGameHandler),
+        (r"/vesica/?", VesicaPageHandler),
+        # Typing Galaga (standalone arcade page)
+        (r"/typing-galaga/?", TypingGalagaPageHandler),
         # Static files
         (r"/static/(.*)", tornado.web.StaticFileHandler, {"path": STATIC_DIR}),
         (r"/uploads/(.*)", tornado.web.StaticFileHandler, {"path": UPLOAD_DIR}),
