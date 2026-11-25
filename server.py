@@ -433,6 +433,15 @@ class VesicaPageHandler(tornado.web.RequestHandler):
             self.write(f.read())
 
 
+# ─── KŌNANE (reuses the vesica room API; state.game == "konane") ───
+
+class KonanePageHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.set_header("Content-Type", "text/html; charset=utf-8")
+        with open(os.path.join(STATIC_DIR, "konane.html"), "r") as f:
+            self.write(f.read())
+
+
 # ─── TYPING GALAGA (standalone arcade page) ───
 
 class TypingGalagaPageHandler(tornado.web.RequestHandler):
@@ -466,6 +475,7 @@ def make_app():
         (r"/api/vesica/games", VesicaCreateHandler),
         (r"/api/vesica/games/([A-Z0-9]+)", VesicaGameHandler),
         (r"/vesica/?", VesicaPageHandler),
+        (r"/konane/?", KonanePageHandler),
         # Typing Galaga (standalone arcade page)
         (r"/typing-galaga/?", TypingGalagaPageHandler),
         # Static files
