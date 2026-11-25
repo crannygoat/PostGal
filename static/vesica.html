@@ -203,7 +203,7 @@
 <body>
 <nav class="site-nav">
   <a href="https://postgal.art/">← post gal</a>
-  <a href="/typing-galaga">typing galaga →</a>
+  <span><a href="/konane">kōnane</a> · <a href="/typing-galaga">typing galaga →</a></span>
 </nav>
 <div class="container" id="app"></div>
 <script>
@@ -464,6 +464,10 @@ async function joinRoom(code) {
     if (!resp) {
       connecting = false;
       setSync('error', 'room ' + code + ' not found');
+      return;
+    }
+    if (resp.state && resp.state.game === 'konane') {
+      location.href = '/konane?room=' + code;
       return;
     }
     roomCode = code;
